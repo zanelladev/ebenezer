@@ -1,0 +1,64 @@
+export type Json =
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: Json | undefined }
+    | Json[]
+
+export interface Database {
+    public: {
+        Tables: {
+            events: {
+                Row: {
+                    id: string
+                    created_at: string
+                    name: string
+                    date: string
+                    location: string
+                    content_url: string
+                }
+                Insert: {
+                    id?: string
+                    created_at?: string
+                    name: string
+                    date: string
+                    location: string
+                    content_url: string
+                }
+                Update: {
+                    id?: string
+                    created_at?: string
+                    name?: string
+                    date?: string
+                    location?: string
+                    content_url?: string
+                }
+            }
+            posts: {
+                Row: {
+                    id: string
+                    created_at: string
+                    name: string
+                    author_name: string
+                    content_url: string
+                }
+                Insert: {
+                    id?: string
+                    created_at?: string
+                    name: string
+                    author_name: string
+                    content_url: string
+                }
+                Update: {
+                    id?: string
+                    created_at?: string
+                    name?: string
+                    author_name?: string
+                    content_url?: string
+                }
+            }
+        }
+    }
+}
+
