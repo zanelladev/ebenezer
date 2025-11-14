@@ -45,6 +45,8 @@ const config: Config = {
             fontFamily: {
                 sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
                 serif: ['var(--font-crimson)', 'Georgia', 'serif'],
+                montserrat: ['var(--font-montserrat)', 'sans-serif'],
+                lato: ['var(--font-lato)', 'sans-serif'],
             },
         },
     },

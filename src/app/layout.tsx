@@ -1,7 +1,7 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import type { Metadata } from "next";
-import { Crimson_Text, Inter } from "next/font/google";
+import { Crimson_Text, Inter, Lato, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -9,6 +9,15 @@ const crimson = Crimson_Text({
     weight: ['400', '600', '700'],
     subsets: ["latin"],
     variable: "--font-crimson"
+});
+const montserrat = Montserrat({
+    subsets: ["latin"],
+    variable: "--font-montserrat"
+});
+const lato = Lato({
+    weight: ['400', '700'],
+    subsets: ["latin"],
+    variable: "--font-lato"
 });
 
 export const metadata: Metadata = {
@@ -23,7 +32,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${inter.variable} ${crimson.variable} font-sans antialiased`}>
+            <body className={`${inter.variable} ${crimson.variable} ${montserrat.variable} ${lato.variable} font-sans antialiased`}>
                 <Navbar />
                 <main className="min-h-screen">
                     {children}
