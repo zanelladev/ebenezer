@@ -55,8 +55,8 @@ export default function EventsSection({ events }: EventsSectionProps) {
                             Visualizar todos os eventos
                             <div className="w-8 h-8 flex items-center justify-center">
                                 <svg width="43" height="43" viewBox="0 0 43 43" fill="none">
-                                    <path d="M2.83 2.83L36.78 36.78" stroke="#EFFEFD" strokeWidth="2"/>
-                                    <path d="M36.78 2.83L36.78 36.78L2.83 36.78" stroke="#EFFEFD" strokeWidth="2"/>
+                                    <path d="M2.83 2.83L36.78 36.78" stroke="#EFFEFD" strokeWidth="2" />
+                                    <path d="M36.78 2.83L36.78 36.78L2.83 36.78" stroke="#EFFEFD" strokeWidth="2" />
                                 </svg>
                             </div>
                         </Link>

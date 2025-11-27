@@ -13,20 +13,25 @@ export default async function BlogPage() {
     return (
         <div className="pt-20">
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-primary-50 to-warm-100 py-12 sm:py-16 lg:py-20">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-                        {BlogResources.title}
-                    </h1>
-                    <p className="text-base sm:text-lg lg:text-xl text-gray-700">
-                        {BlogResources.subtitle}
-                    </p>
+            <section className="bg-white py-12 sm:py-16 lg:py-20">
+                <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col gap-6 max-w-4xl">
+                        <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
+                            BLOG
+                        </p>
+                        <h1 className="font-montserrat text-4xl sm:text-5xl lg:text-[64px] leading-[1.1] font-semibold text-[#002F34]">
+                            {BlogResources.title}
+                        </h1>
+                        <p className="text-lg sm:text-xl text-[#002F34]/80 leading-relaxed max-w-3xl">
+                            {BlogResources.subtitle}
+                        </p>
+                    </div>
                 </div>
             </section>
 
             {/* Blog Posts */}
-            <section className="py-12 sm:py-16 lg:py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-12 sm:py-16 lg:py-20 bg-[#EFFEFD]">
+                <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8">
                     {posts && posts.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                             {posts.map((post) => (
@@ -35,7 +40,7 @@ export default async function BlogPage() {
                         </div>
                     ) : (
                         <div className="text-center py-12 sm:py-16 lg:py-20">
-                            <p className="text-gray-600 text-base sm:text-lg">
+                            <p className="text-[#002F34]/80 text-base sm:text-lg">
                                 {BlogResources.empty}
                             </p>
                         </div>

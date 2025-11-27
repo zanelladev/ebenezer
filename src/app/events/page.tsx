@@ -17,23 +17,33 @@ export default async function EventsPage() {
     return (
         <div className="pt-20">
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-primary-50 to-warm-100 py-12 sm:py-16 lg:py-20">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-                        {EventsResources.title}
-                    </h1>
-                    <p className="text-base sm:text-lg lg:text-xl text-gray-700">
-                        {EventsResources.subtitle}
-                    </p>
+            <section className="bg-white py-12 sm:py-16 lg:py-20">
+                <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col gap-6 max-w-4xl">
+                        <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
+                            EVENTOS
+                        </p>
+                        <h1 className="font-montserrat text-4xl sm:text-5xl lg:text-[64px] leading-[1.1] font-semibold text-[#002F34]">
+                            {EventsResources.title}
+                        </h1>
+                        <p className="text-lg sm:text-xl text-[#002F34]/80 leading-relaxed max-w-3xl">
+                            {EventsResources.subtitle}
+                        </p>
+                    </div>
                 </div>
             </section>
 
             {/* Upcoming Events */}
-            <section className="py-12 sm:py-16 lg:py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 sm:mb-10 lg:mb-12">
-                        {EventsResources.upcoming.title}
-                    </h2>
+            <section className="py-12 sm:py-16 lg:py-20 bg-[#EFFEFD]">
+                <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col gap-2 mb-8 sm:mb-12">
+                        <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
+                            PRÓXIMOS EVENTOS
+                        </p>
+                        <h2 className="font-montserrat text-3xl sm:text-4xl lg:text-[46px] leading-[1.22] font-semibold text-[#002F34]">
+                            {EventsResources.upcoming.title}
+                        </h2>
+                    </div>
 
                     {upcomingEvents.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -42,7 +52,7 @@ export default async function EventsPage() {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-gray-600 text-center py-8 sm:py-12 text-sm sm:text-base">
+                        <p className="text-[#002F34]/80 text-center py-8 sm:py-12 text-base sm:text-lg">
                             {EventsResources.upcoming.empty}
                         </p>
                     )}
@@ -51,11 +61,16 @@ export default async function EventsPage() {
 
             {/* Past Events */}
             {pastEvents.length > 0 && (
-                <section className="py-12 sm:py-16 lg:py-20 bg-warm-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 sm:mb-10 lg:mb-12">
-                            {EventsResources.past.title}
-                        </h2>
+                <section className="py-12 sm:py-16 lg:py-20 bg-white">
+                    <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col gap-2 mb-8 sm:mb-12">
+                            <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
+                                EVENTOS ANTERIORES
+                            </p>
+                            <h2 className="font-montserrat text-3xl sm:text-4xl lg:text-[46px] leading-[1.22] font-semibold text-[#002F34]">
+                                {EventsResources.past.title}
+                            </h2>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                             {pastEvents.map((event) => (
                                 <EventCard key={event.id} event={event} />
