@@ -48,7 +48,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                         href="/events"
                         className="inline-flex items-center gap-2 text-[#009CA3] hover:text-[#047A81] font-medium text-sm sm:text-base transition-colors"
                     >
-                        ← Voltar para eventos
+                        <span className="text-xs sm:text-sm">←</span> Voltar para eventos
                     </Link>
                 </div>
 

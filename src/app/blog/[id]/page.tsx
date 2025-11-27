@@ -39,7 +39,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                         href="/blog"
                         className="inline-flex items-center gap-2 text-[#009CA3] hover:text-[#047A81] font-medium text-sm sm:text-base transition-colors"
                     >
-                        ← Voltar para o blog
+                        <span className="text-xs sm:text-sm">←</span> Voltar para o blog
                     </Link>
                 </div>
 

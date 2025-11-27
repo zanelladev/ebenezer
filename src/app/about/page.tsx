@@ -148,8 +148,8 @@ export default function AboutPage() {
                             className="inline-flex items-center justify-center gap-6 px-8 h-14 bg-[#009CA3] rounded-lg font-montserrat text-base font-semibold text-white hover:bg-[#047A81] transition-colors"
                         >
                             Conheça nossos eventos
-                            <div className="w-8 h-8 flex items-center justify-center">
-                                <svg width="43" height="43" viewBox="0 0 43 43" fill="none">
+                            <div className="w-5 h-5 flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 43 43" fill="none">
                                     <path d="M2.83 2.83L36.78 36.78" stroke="white" strokeWidth="2" />
                                     <path d="M36.78 2.83L36.78 36.78L2.83 36.78" stroke="white" strokeWidth="2" />
                                 </svg>
