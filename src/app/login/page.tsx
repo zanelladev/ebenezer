@@ -4,6 +4,7 @@ import { LoginResources } from '@/lib/resources';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -33,66 +34,87 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen pt-20 bg-gradient-to-br from-primary-50 to-warm-100 flex items-center justify-center px-4">
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-                <div className="text-center mb-8">
-                    <h1 className="font-serif text-4xl font-bold text-gray-900 mb-2">
-                        {LoginResources.title}
-                    </h1>
-                    <p className="text-gray-600">
-                        {LoginResources.subtitle}
-                    </p>
-                </div>
-
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                            {LoginResources.form.email}
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder={LoginResources.form.emailPlaceholder}
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                            {LoginResources.form.password}
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder={LoginResources.form.passwordPlaceholder}
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="min-h-screen pt-20 bg-white flex items-center justify-center px-4">
+            <div className="max-w-[1244px] w-full mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    {/* Left Content */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="flex flex-col gap-8"
                     >
-                        {loading ? LoginResources.form.loggingIn : LoginResources.form.submit}
-                    </button>
-                </form>
+                        <div className="flex flex-col gap-6">
+                            <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
+                                ÁREA ADMINISTRATIVA
+                            </p>
+                            <h1 className="font-montserrat text-4xl sm:text-5xl lg:text-[64px] leading-[1.1] font-semibold text-[#002F34]">
+                                {LoginResources.title}
+                            </h1>
+                            <p className="text-lg sm:text-xl text-[#002F34]/80 leading-relaxed">
+                                {LoginResources.subtitle}
+                            </p>
+                        </div>
+                    </motion.div>
 
-                <p className="text-sm text-gray-600 text-center mt-6">
-                    {LoginResources.info}
-                </p>
+                    {/* Right Form */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="bg-[#EFFEFD] rounded-2xl p-8 lg:p-12"
+                    >
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <div>
+                                <label htmlFor="email" className="block font-montserrat text-sm font-semibold text-[#002F34] mb-2">
+                                    {LoginResources.form.email}
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 bg-white border-2 border-[#009CA3]/20 rounded-lg focus:border-[#009CA3] focus:ring-2 focus:ring-[#009CA3]/20 transition-all text-[#002F34]"
+                                    placeholder={LoginResources.form.emailPlaceholder}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="password" className="block font-montserrat text-sm font-semibold text-[#002F34] mb-2">
+                                    {LoginResources.form.password}
+                                </label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 bg-white border-2 border-[#009CA3]/20 rounded-lg focus:border-[#009CA3] focus:ring-2 focus:ring-[#009CA3]/20 transition-all text-[#002F34]"
+                                    placeholder={LoginResources.form.passwordPlaceholder}
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-[#009CA3] text-white py-4 rounded-lg hover:bg-[#047A81] transition-colors font-montserrat font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? LoginResources.form.loggingIn : LoginResources.form.submit}
+                            </button>
+                        </form>
+
+                        <p className="text-sm text-[#002F34]/60 text-center mt-6">
+                            {LoginResources.info}
+                        </p>
+                    </motion.div>
+                </div>
             </div>
         </div>
     );
