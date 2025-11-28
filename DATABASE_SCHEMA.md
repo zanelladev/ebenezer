@@ -18,7 +18,7 @@ Stores church events and gatherings.
 | content_url  | text      | Yes      | URL to markdown file in storage      |
 
 **Example:**
-```json
+\`\`\`json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "created_at": "2025-10-31T10:00:00Z",
@@ -27,7 +27,7 @@ Stores church events and gatherings.
   "location": "Main Sanctuary, 123 Church St",
   "content_url": "https://[project].supabase.co/storage/v1/object/public/markdown-content/events/sunday-worship-123456.md"
 }
-```
+\`\`\`
 
 ### Posts Table
 Stores blog posts and articles.
@@ -41,7 +41,7 @@ Stores blog posts and articles.
 | content_url  | text      | Yes      | URL to markdown file in storage      |
 
 **Example:**
-```json
+\`\`\`json
 {
   "id": "987fcdeb-51a2-43f7-9abc-def012345678",
   "created_at": "2025-10-31T15:30:00Z",
@@ -49,14 +49,14 @@ Stores blog posts and articles.
   "author_name": "Pastor John Smith",
   "content_url": "https://[project].supabase.co/storage/v1/object/public/markdown-content/posts/finding-peace-123456.md"
 }
-```
+\`\`\`
 
 ## Storage Structure
 
 ### Bucket: `markdown-content`
 - **Public**: Yes
 - **Folder structure**:
-  ```
+  \`\`\`
   markdown-content/
   ├── events/
   │   ├── event-name-1234567890.md
@@ -64,7 +64,7 @@ Stores blog posts and articles.
   └── posts/
       ├── post-title-1234567890.md
       └── another-post-9876543210.md
-  ```
+  \`\`\`
 
 ### File Naming Convention
 Files are named using: `{slug}-{timestamp}.md`
@@ -100,10 +100,10 @@ Example: `sunday-worship-service-1730372400000.md`
 
 2. **Configure Environment**:
    Ensure your `.env.local` file has:
-   ```
+   \`\`\`
    NEXT_PUBLIC_SUPABASE_URL=your_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   ```
+   \`\`\`
 
 3. **Storage Bucket**:
    The SQL script automatically creates the `markdown-content` bucket.
@@ -112,7 +112,7 @@ Example: `sunday-worship-service-1730372400000.md`
 
 The database types are defined in `src/lib/supabase/types.ts`:
 
-```typescript
+\`\`\`typescript
 interface Event {
   id: string;
   created_at: string;
@@ -129,7 +129,7 @@ interface Post {
   author_name: string;
   content_url: string;
 }
-```
+\`\`\`
 
 ## Storage Utilities
 
@@ -143,7 +143,7 @@ Helper functions in `src/lib/storage.ts`:
 ## Usage Examples
 
 ### Creating an Event
-```typescript
+\`\`\`typescript
 // 1. Upload markdown content
 const { url } = await uploadMarkdownFile(
   markdownContent,
@@ -160,10 +160,10 @@ const { data, error } = await supabase
     location: 'Main Sanctuary',
     content_url: url,
   });
-```
+\`\`\`
 
 ### Fetching an Event with Content
-```typescript
+\`\`\`typescript
 // 1. Get event from database
 const { data: event } = await supabase
   .from('events')
@@ -173,16 +173,16 @@ const { data: event } = await supabase
 
 // 2. Fetch markdown content
 const { content } = await fetchMarkdownContent(event.content_url);
-```
+\`\`\`
 
 ### Deleting an Event
-```typescript
+\`\`\`typescript
 // 1. Delete from database
 await supabase.from('events').delete().eq('id', eventId);
 
 // 2. Delete markdown file
 await deleteMarkdownFile(event.content_url);
-```
+\`\`\`
 
 ## Migration from Old Schema
 
@@ -191,9 +191,9 @@ If migrating from a schema with `short_description`, `excerpt`, or `image_url` f
 1. The simplified schema removes these fields
 2. All descriptive content should be in the markdown file
 3. Images can be embedded in markdown using standard syntax:
-   ```markdown
+   \`\`\`markdown
    ![Alt text](https://your-image-url.com/image.jpg)
-   ```
+   \`\`\`
 
 ## Benefits of This Approach
 
