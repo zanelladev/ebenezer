@@ -10,17 +10,17 @@ export function createClient() {
 
   const supabaseUrl =
     typeof window !== "undefined"
-      ? (window as any).__NEXT_PUBLIC_SUPABASE_URL__ || process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+      ? (window as unknown as Record<string, string>).__NEXT_PUBLIC_SUPABASE_URL__ || process.env.NEXT_PUBLIC_SUPABASE_URL || ""
       : process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 
   const supabaseKey =
     typeof window !== "undefined"
-      ? (window as any).__NEXT_PUBLIC_SUPABASE_ANON_KEY__ || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+      ? (window as unknown as Record<string, string>).__NEXT_PUBLIC_SUPABASE_ANON_KEY__ || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
       : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
   if (!supabaseUrl || !supabaseKey) {
     console.warn(
-      "[v0] Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
+      "Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
     )
     // Return a mock client that won't crash but won't work either
     clientInstance = createBrowserClient("https://placeholder.supabase.co", "placeholder-key")

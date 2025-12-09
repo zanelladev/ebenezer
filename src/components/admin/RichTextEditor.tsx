@@ -1,10 +1,13 @@
 "use client"
 
-import type React from "react"
-
 import { uploadImage } from "@/lib/storage"
-import { Bold, Heading1, Heading2, Heading3, ImageIcon, Italic, List, ListOrdered, LinkIcon } from "lucide-react"
-import { useRef, useState, useEffect } from "react"
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import Placeholder from '@tiptap/extension-placeholder'
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { Bold, Edit2, Heading1, Heading2, Heading3, ImageIcon, Italic, LinkIcon, List, ListOrdered, Trash2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 interface RichTextEditorProps {
   value: string
@@ -13,93 +16,150 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, type }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
   const [uploading, setUploading] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [activeFormats, setActiveFormats] = useState<Set<string>>(new Set())
+  const [, setEditorUpdate] = useState(0)
+  const [showLinkDialog, setShowLinkDialog] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkText, setLinkText] = useState('')
+  const [isEditingLink, setIsEditingLink] = useState(false)
+  const [showLinkBubble, setShowLinkBubble] = useState(false)
+  const [showImageBubble, setShowImageBubble] = useState(false)
+  const [bubblePosition, setBubblePosition] = useState({ top: 0, left: 0 })
+  const editorRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (editorRef.current && !isInitialized) {
-      console.log("[v0] Original markdown:", value)
-      const htmlContent = convertMarkdownToHTML(value)
-      console.log("[v0] Converted to HTML:", htmlContent)
-      editorRef.current.innerHTML = htmlContent
-      setIsInitialized(true)
-    }
-  }, [value, isInitialized])
-
-  const updateActiveFormats = () => {
-    const formats = new Set<string>()
-
-    if (document.queryCommandState("bold")) formats.add("bold")
-    if (document.queryCommandState("italic")) formats.add("italic")
-    if (document.queryCommandState("insertUnorderedList")) formats.add("bulletList")
-    if (document.queryCommandState("insertOrderedList")) formats.add("orderedList")
-
-    const selection = window.getSelection()
-    if (selection && selection.anchorNode) {
-      let node: Node | null = selection.anchorNode
-      while (node && node !== editorRef.current) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const tagName = (node as Element).tagName.toLowerCase()
-          if (tagName === "h1") formats.add("h1")
-          if (tagName === "h2") formats.add("h2")
-          if (tagName === "h3") formats.add("h3")
-        }
-        node = node.parentNode
-      }
-    }
-
-    setActiveFormats(formats)
-  }
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      const html = editorRef.current.innerHTML
-      const markdown = convertHTMLToMarkdown(html)
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline cursor-pointer',
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg my-4',
+        },
+        inline: false,
+      }),
+      Placeholder.configure({
+        placeholder: 'Write something...',
+      }),
+    ],
+    content: convertMarkdownToHTML(value),
+    onUpdate: ({ editor }) => {
+      const markdown = convertHTMLToMarkdown(editor.getHTML())
       onChange(markdown)
-    }
-    updateActiveFormats()
-  }
+    },
+    onSelectionUpdate: () => {
+      // Force re-render to update button states
+      setEditorUpdate(prev => prev + 1)
+    },
+  })
 
+  // Listen to transaction updates for reliable state changes
   useEffect(() => {
-    const handleSelectionChange = () => {
-      if (document.activeElement === editorRef.current || editorRef.current?.contains(document.activeElement)) {
-        updateActiveFormats()
+    if (!editor) return
+
+    const handler = () => {
+      setEditorUpdate(prev => prev + 1)
+
+      // Check if link is active
+      if (editor.isActive('link')) {
+        const { view } = editor
+        const { from } = view.state.selection
+        const start = view.coordsAtPos(from)
+
+        if (editorRef.current) {
+          const editorRect = editorRef.current.getBoundingClientRect()
+          setBubblePosition({
+            top: start.top - editorRect.top - 50,
+            left: start.left - editorRect.left
+          })
+          setShowLinkBubble(true)
+          setShowImageBubble(false)
+        }
+      }
+      // Check if image is selected
+      else {
+        const selection = editor.state.selection as { node?: { type: { name: string } } }
+        if (selection.node && selection.node.type.name === 'image') {
+          const { view } = editor
+          const { from } = view.state.selection
+          const start = view.coordsAtPos(from)
+
+          if (editorRef.current) {
+            const editorRect = editorRef.current.getBoundingClientRect()
+            setBubblePosition({
+              top: start.top - editorRect.top - 50,
+              left: start.left - editorRect.left
+            })
+            setShowImageBubble(true)
+            setShowLinkBubble(false)
+          }
+        } else {
+          setShowLinkBubble(false)
+          setShowImageBubble(false)
+        }
       }
     }
 
-    document.addEventListener("selectionchange", handleSelectionChange)
-    return () => document.removeEventListener("selectionchange", handleSelectionChange)
-  }, [])
+    editor.on('transaction', handler)
+    editor.on('selectionUpdate', handler)
 
-  const formatText = (command: string, value?: string) => {
-    document.execCommand(command, false, value)
-    editorRef.current?.focus()
-    handleInput()
-  }
-
-  const insertHeading = (level: number) => {
-    document.execCommand("formatBlock", false, `h${level}`)
-    editorRef.current?.focus()
-    handleInput()
-  }
-
-  const insertList = (ordered: boolean) => {
-    formatText(ordered ? "insertOrderedList" : "insertUnorderedList")
-  }
-
-  const insertLink = () => {
-    const url = prompt("Enter URL:")
-    if (url) {
-      formatText("createLink", url)
+    return () => {
+      editor.off('transaction', handler)
+      editor.off('selectionUpdate', handler)
     }
+  }, [editor])
+
+  if (!editor) {
+    return null
   }
 
-  const handleImageUpload = async () => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
+  const setLink = () => {
+    const { from, to } = editor.state.selection
+    const text = editor.state.doc.textBetween(from, to, '')
+    const previousUrl = editor.getAttributes('link').href || ''
+
+    setLinkText(text)
+    setLinkUrl(previousUrl)
+    setIsEditingLink(!!previousUrl)
+    setShowLinkDialog(true)
+  }
+
+  const editLink = () => {
+    const previousUrl = editor.getAttributes('link').href || ''
+    const { from, to } = editor.state.selection
+    const text = editor.state.doc.textBetween(from, to, '')
+
+    setLinkText(text)
+    setLinkUrl(previousUrl)
+    setIsEditingLink(true)
+    setShowLinkDialog(true)
+  }
+
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange('link').unsetLink().run()
+  }
+
+  const handleLinkSubmit = () => {
+    if (linkUrl === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
+    } else {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run()
+    }
+    setShowLinkDialog(false)
+    setLinkUrl('')
+    setLinkText('')
+    setIsEditingLink(false)
+  }
+
+  const addImage = async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
@@ -109,341 +169,512 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
       const { url, error } = await uploadImage(file, type, filename)
 
       if (error || !url) {
-        alert("Failed to upload image")
+        alert('Failed to upload image')
         setUploading(false)
         return
       }
 
-      const imgHTML = `<img src="${url}" alt="Uploaded image" class="max-w-full h-auto rounded-lg my-4" draggable="true" />`
-      document.execCommand("insertHTML", false, imgHTML)
-
-      editorRef.current?.focus()
-      handleInput()
+      editor.chain().focus().setImage({ src: url, alt: 'Uploaded image' }).run()
       setUploading(false)
     }
     input.click()
   }
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const replaceSelectedImage = async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
 
-    const files = Array.from(e.dataTransfer.files)
-    const imageFile = files.find((file) => file.type.startsWith("image/"))
-
-    if (imageFile) {
       setUploading(true)
-      const filename = `${Date.now()}-${imageFile.name}`
-      const { url, error } = await uploadImage(imageFile, type, filename)
+      const filename = `${Date.now()}-${file.name}`
+      const { url, error } = await uploadImage(file, type, filename)
 
       if (error || !url) {
-        alert("Failed to upload image")
+        alert('Failed to upload image')
         setUploading(false)
         return
       }
 
-      const imgHTML = `<img src="${url}" alt="Uploaded image" class="max-w-full h-auto rounded-lg my-4" draggable="true" />`
-      document.execCommand("insertHTML", false, imgHTML)
-
-      handleInput()
+      // Update the selected image
+      editor.chain().focus().setImage({ src: url, alt: 'Uploaded image' }).run()
       setUploading(false)
     }
+    input.click()
   }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
-  const toolbarButtons = [
-    {
-      icon: <Bold className="w-4 h-4" />,
-      label: "Bold",
-      action: () => formatText("bold"),
-      formatKey: "bold",
-    },
-    {
-      icon: <Italic className="w-4 h-4" />,
-      label: "Italic",
-      action: () => formatText("italic"),
-      formatKey: "italic",
-    },
-    {
-      icon: <Heading1 className="w-4 h-4" />,
-      label: "Heading 1",
-      action: () => insertHeading(1),
-      formatKey: "h1",
-    },
-    {
-      icon: <Heading2 className="w-4 h-4" />,
-      label: "Heading 2",
-      action: () => insertHeading(2),
-      formatKey: "h2",
-    },
-    {
-      icon: <Heading3 className="w-4 h-4" />,
-      label: "Heading 3",
-      action: () => insertHeading(3),
-      formatKey: "h3",
-    },
-    {
-      icon: <List className="w-4 h-4" />,
-      label: "Bullet List",
-      action: () => insertList(false),
-      formatKey: "bulletList",
-    },
-    {
-      icon: <ListOrdered className="w-4 h-4" />,
-      label: "Numbered List",
-      action: () => insertList(true),
-      formatKey: "orderedList",
-    },
-    {
-      icon: <LinkIcon className="w-4 h-4" />,
-      label: "Link",
-      action: insertLink,
-    },
-    {
-      icon: <ImageIcon className="w-4 h-4" />,
-      label: "Upload Image",
-      action: handleImageUpload,
-    },
-  ]
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden bg-background">
-      {/* Toolbar */}
+    <div ref={editorRef} className="border border-border rounded-xl overflow-hidden bg-background relative">
       <div className="flex flex-wrap gap-1 p-2 border-b border-border bg-muted/30">
-        {toolbarButtons.map((button, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={button.action}
-            disabled={uploading}
-            className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              button.formatKey && activeFormats.has(button.formatKey)
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-accent hover:text-accent-foreground"
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          disabled={!editor.can().chain().focus().toggleBold().run()}
+          className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${editor.isActive('bold') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
             }`}
-            title={button.label}
-          >
-            {button.icon}
-          </button>
-        ))}
+          title="Bold"
+        >
+          <Bold className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          disabled={!editor.can().chain().focus().toggleItalic().run()}
+          className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${editor.isActive('italic') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Italic"
+        >
+          <Italic className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('heading', { level: 1 }) ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Heading 1"
+        >
+          <Heading1 className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Heading 2"
+        >
+          <Heading2 className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('heading', { level: 3 }) ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Heading 3"
+        >
+          <Heading3 className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('bulletList') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Bullet List"
+        >
+          <List className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('orderedList') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Numbered List"
+        >
+          <ListOrdered className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={setLink}
+          className={`p-2 rounded-lg transition-colors ${editor.isActive('link') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+            }`}
+          title="Add Link"
+        >
+          <LinkIcon className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={addImage}
+          disabled={uploading}
+          className="p-2 rounded-lg transition-colors hover:bg-accent disabled:opacity-50"
+          title="Upload Image"
+        >
+          <ImageIcon className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* WYSIWYG Editor */}
-      <div
-        ref={editorRef}
-        contentEditable
-        onInput={handleInput}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        className="w-full px-4 py-3 bg-background text-foreground min-h-[400px] focus:outline-none"
-        style={{
-          overflowWrap: "break-word",
-          lineHeight: "1.6",
-        }}
-      />
+      <EditorContent editor={editor} className="prose prose-sm max-w-none" />
 
-      {uploading && (
-        <div className="p-2 text-sm text-muted-foreground text-center border-t border-border">Uploading image...</div>
+      {/* Floating menu for links */}
+      {showLinkBubble && (
+        <div
+          className="absolute z-10 flex items-center gap-1 bg-background border border-border rounded-lg shadow-lg p-1"
+          style={{
+            top: `${bubblePosition.top}px`,
+            left: `${bubblePosition.left}px`,
+          }}
+        >
+          <button
+            type="button"
+            onClick={editLink}
+            className="p-2 rounded hover:bg-accent transition-colors"
+            title="Edit Link"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={removeLink}
+            className="p-2 rounded hover:bg-accent text-destructive transition-colors"
+            title="Remove Link"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       )}
 
-      <style jsx>{`
-        div[contenteditable] h1 {
+      {/* Floating menu for images */}
+      {showImageBubble && (
+        <div
+          className="absolute z-10 flex items-center gap-1 bg-background border border-border rounded-lg shadow-lg p-1"
+          style={{
+            top: `${bubblePosition.top}px`,
+            left: `${bubblePosition.left}px`,
+          }}
+        >
+          <button
+            type="button"
+            onClick={replaceSelectedImage}
+            className="p-2 rounded hover:bg-accent transition-colors"
+            title="Replace Image"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              editor.chain().focus().deleteSelection().run()
+              setShowImageBubble(false)
+            }}
+            className="p-2 rounded hover:bg-accent text-destructive transition-colors"
+            title="Delete Image"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {uploading && (
+        <div className="p-2 text-sm text-muted-foreground text-center border-t border-border">
+          Uploading image...
+        </div>
+      )}
+
+      {/* Link Dialog */}
+      {showLinkDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowLinkDialog(false)}>
+          <div className="bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4">
+              {isEditingLink ? 'Edit Link' : 'Add Link'}
+            </h3>
+
+            {linkText && (
+              <div className="mb-4">
+                <label className="text-sm text-muted-foreground block mb-2">Link Text</label>
+                <div className="px-3 py-2 bg-muted rounded-lg text-sm">{linkText}</div>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className="text-sm font-medium block mb-2">URL</label>
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleLinkSubmit()
+                  } else if (e.key === 'Escape') {
+                    setShowLinkDialog(false)
+                  }
+                }}
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowLinkDialog(false)}
+                className="px-4 py-2 rounded-lg border border-border hover:bg-accent transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleLinkSubmit}
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                {linkUrl ? (isEditingLink ? 'Update Link' : 'Add Link') : 'Remove Link'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        .ProseMirror {
+          min-height: 400px;
+          padding: 1rem;
+          outline: none;
+        }
+        
+        .ProseMirror p.is-editor-empty:first-child::before {
+          color: hsl(var(--muted-foreground));
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
+        
+        .ProseMirror h1 {
           font-size: 2em;
           font-weight: bold;
           margin: 0.67em 0;
+          line-height: 1.2;
         }
-        div[contenteditable] h2 {
+        
+        .ProseMirror h2 {
           font-size: 1.5em;
           font-weight: bold;
           margin: 0.75em 0;
+          line-height: 1.3;
         }
-        div[contenteditable] h3 {
+        
+        .ProseMirror h3 {
           font-size: 1.17em;
           font-weight: bold;
           margin: 0.83em 0;
+          line-height: 1.4;
         }
-        div[contenteditable] p {
+        
+        .ProseMirror p {
           margin: 1em 0;
+          line-height: 1.6;
         }
-        div[contenteditable] ul,
-        div[contenteditable] ol {
+        
+        .ProseMirror ul,
+        .ProseMirror ol {
           margin: 1em 0;
           padding-left: 2em;
         }
-        div[contenteditable] ul {
+        
+        .ProseMirror ul {
           list-style-type: disc;
         }
-        div[contenteditable] ol {
+        
+        .ProseMirror ol {
           list-style-type: decimal;
         }
-        div[contenteditable] li {
+        
+        .ProseMirror li {
           margin: 0.5em 0;
-          display: list-item;
         }
-        div[contenteditable] strong {
+        
+        .ProseMirror strong {
           font-weight: bold;
         }
-        div[contenteditable] em {
+        
+        .ProseMirror em {
           font-style: italic;
         }
-        div[contenteditable] a {
+        
+        .ProseMirror a {
           color: hsl(var(--primary));
           text-decoration: underline;
+          cursor: pointer;
         }
-        div[contenteditable] img {
-          cursor: move;
+        
+        .ProseMirror a:hover {
+          opacity: 0.8;
+        }
+        
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          display: block;
+          cursor: pointer;
+          transition: opacity 0.2s;
+          position: relative;
+        }
+        
+        .ProseMirror img:hover {
+          opacity: 0.9;
+        }
+        
+        .ProseMirror .ProseMirror-selectednode {
+          outline: 2px solid hsl(var(--primary));
+          outline-offset: 2px;
+        }
+        
+        .ProseMirror code {
+          background-color: hsl(var(--muted));
+          padding: 0.2em 0.4em;
+          border-radius: 0.25rem;
+          font-size: 0.9em;
         }
       `}</style>
     </div>
   )
 }
 
+// Convert markdown to HTML for Tiptap
 function convertMarkdownToHTML(markdown: string): string {
-  if (!markdown) return ""
+  if (!markdown) return '<p></p>'
 
-  console.log("[v0] Starting markdown conversion...")
   let html = markdown
 
-  console.log("[v0] Before image conversion:", html)
-  html = html.replace(
-    /!\[([^\]]*)\]$$([^)]+)$$/g,
-    '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-4" draggable="true" />',
-  )
-  console.log("[v0] After image conversion:", html)
+  // Clean up any leftover HTML artifacts
+  html = html.replace(/<ul><\/ul>/g, '')
+  html = html.replace(/<ol><\/ol>/g, '')
 
-  console.log("[v0] Before link conversion:", html)
-  html = html.replace(/\[([^\]]+)\]$$([^)]+)$$/g, '<a href="$2">$1</a>')
-  console.log("[v0] After link conversion:", html)
+  // Convert bold and italic before other processing
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
 
-  html = html.replace(/^### (.*)$/gim, "<h3>$1</h3>")
-  html = html.replace(/^## (.*)$/gim, "<h2>$1</h2>")
-  html = html.replace(/^# (.*)$/gim, "<h1>$1</h1>")
-  console.log("[v0] After heading conversion:", html)
+  // Convert images
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
 
-  const lines = html.split("\n")
-  let inList = false
-  let listType = ""
-  const processedLines: string[] = []
+  // Convert links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+
+  // Convert headings
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>')
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>')
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>')
+
+  // Process lists line by line
+  const lines = html.split('\n')
+  const processed: string[] = []
+  let inUL = false
+  let inOL = false
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-    const trimmed = line.trim()
+    const line = lines[i].trim()
 
-    if (trimmed.match(/^<(h[1-6]|img|a)/)) {
-      if (inList) {
-        processedLines.push(`</${listType}>`)
-        inList = false
-        listType = ""
+    // Bullet list
+    if (line.match(/^[-*]\s+(.+)/)) {
+      if (!inUL) {
+        if (inOL) {
+          processed.push('</ol>')
+          inOL = false
+        }
+        processed.push('<ul>')
+        inUL = true
       }
-      processedLines.push(line)
-      continue
+      processed.push(`<li>${line.replace(/^[-*]\s+/, '')}</li>`)
     }
+    // Ordered list
+    else if (line.match(/^\d+\.\s+(.+)/)) {
+      if (!inOL) {
+        if (inUL) {
+          processed.push('</ul>')
+          inUL = false
+        }
+        processed.push('<ol>')
+        inOL = true
+      }
+      processed.push(`<li>${line.replace(/^\d+\.\s+/, '')}</li>`)
+    }
+    // Not a list
+    else {
+      if (inUL) {
+        processed.push('</ul>')
+        inUL = false
+      }
+      if (inOL) {
+        processed.push('</ol>')
+        inOL = false
+      }
 
-    if (trimmed.match(/^[-*] /)) {
-      if (!inList || listType !== "ul") {
-        if (inList) processedLines.push(`</${listType}>`)
-        processedLines.push("<ul>")
-        inList = true
-        listType = "ul"
+      if (line.length > 0) {
+        // Don't wrap headings and images in paragraphs
+        if (!line.match(/^<(h[1-6]|img)/)) {
+          processed.push(`<p>${line}</p>`)
+        } else {
+          processed.push(line)
+        }
       }
-      processedLines.push(`<li>${trimmed.substring(2)}</li>`)
-    } else if (trimmed.match(/^\d+\. /)) {
-      if (!inList || listType !== "ol") {
-        if (inList) processedLines.push(`</${listType}>`)
-        processedLines.push("<ol>")
-        inList = true
-        listType = "ol"
-      }
-      processedLines.push(`<li>${trimmed.replace(/^\d+\. /, "")}</li>`)
-    } else {
-      if (inList) {
-        processedLines.push(`</${listType}>`)
-        inList = false
-        listType = ""
-      }
-      processedLines.push(line)
     }
   }
 
-  if (inList) {
-    processedLines.push(`</${listType}>`)
-  }
+  // Close any open lists
+  if (inUL) processed.push('</ul>')
+  if (inOL) processed.push('</ol>')
 
-  html = processedLines.join("\n")
-
-  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>")
-
-  html = html.replace(/\n\n/g, "</p><p>")
-  html = html.replace(/\n/g, "<br />")
-
-  if (!html.match(/^<(h[1-6]|ul|ol|img)/)) {
-    html = "<p>" + html + "</p>"
-  }
-
-  html = html.replace(/<p>(<(?:h[1-6]|ul|ol|img)[^>]*>.*?<\/(?:h[1-6]|ul|ol)>)<\/p>/g, "$1")
-  html = html.replace(/<p>(<img[^>]*>)<\/p>/g, "$1")
-
-  console.log("[v0] Final HTML:", html)
-  return html
+  return processed.join('')
 }
 
+// Convert Tiptap HTML to markdown
 function convertHTMLToMarkdown(html: string): string {
   let markdown = html
 
-  markdown = markdown.replace(/<h1>(.*?)<\/h1>/gi, "# $1\n\n")
-  markdown = markdown.replace(/<h2>(.*?)<\/h2>/gi, "## $1\n\n")
-  markdown = markdown.replace(/<h3>(.*?)<\/h3>/gi, "### $1\n\n")
+  // Convert headings
+  markdown = markdown.replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
+  markdown = markdown.replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
+  markdown = markdown.replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
 
-  markdown = markdown.replace(/<strong>(.*?)<\/strong>/gi, "**$1**")
-  markdown = markdown.replace(/<b>(.*?)<\/b>/gi, "**$1**")
+  // Convert strong and em
+  markdown = markdown.replace(/<strong><em>(.*?)<\/em><\/strong>/gi, '***$1***')
+  markdown = markdown.replace(/<em><strong>(.*?)<\/strong><\/em>/gi, '***$1***')
+  markdown = markdown.replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
+  markdown = markdown.replace(/<b>(.*?)<\/b>/gi, '**$1**')
+  markdown = markdown.replace(/<em>(.*?)<\/em>/gi, '*$1*')
+  markdown = markdown.replace(/<i>(.*?)<\/i>/gi, '*$1*')
 
-  markdown = markdown.replace(/<em>(.*?)<\/em>/gi, "*$1*")
-  markdown = markdown.replace(/<i>(.*?)<\/i>/gi, "*$1*")
+  // Convert links
+  markdown = markdown.replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
 
-  markdown = markdown.replace(/<img[^>]+src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>/gi, "![$2]($1)")
-  markdown = markdown.replace(/<img[^>]+src="([^"]+)"[^>]*>/gi, "![Image]($1)")
+  // Convert images
+  markdown = markdown.replace(/<img[^>]+src="([^"]+)"[^>]*alt="([^"]*)"[^>]*\/?>/gi, '![$2]($1)')
+  markdown = markdown.replace(/<img[^>]+src="([^"]+)"[^>]*\/?>/gi, '![Image]($1)')
 
-  markdown = markdown.replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, "[$2]($1)")
-
-  markdown = markdown.replace(/<ul>(.*?)<\/ul>/gis, (match, content) => {
-    const items = content.match(/<li>(.*?)<\/li>/gi)
-    if (!items) return match
-    return (
-      items
-        .map((item: string) => {
-          const text = item.replace(/<\/?li>/gi, "").trim()
-          return `- ${text}`
-        })
-        .join("\n") + "\n\n"
-    )
+  // Convert unordered lists
+  markdown = markdown.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (match, content) => {
+    const items = content.match(/<li[^>]*>(.*?)<\/li>/gi)
+    if (!items) return ''
+    return items
+      .map((item: string) => {
+        const text = item.replace(/<\/?li[^>]*>/gi, '').replace(/<br\s*\/?>/gi, '\n').trim()
+        return `- ${text}`
+      })
+      .join('\n') + '\n\n'
   })
 
-  markdown = markdown.replace(/<ol>(.*?)<\/ol>/gis, (match, content) => {
-    const items = content.match(/<li>(.*?)<\/li>/gi)
-    if (!items) return match
+  // Convert ordered lists
+  markdown = markdown.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (match, content) => {
+    const items = content.match(/<li[^>]*>(.*?)<\/li>/gi)
+    if (!items) return ''
     let counter = 1
-    return (
-      items
-        .map((item: string) => {
-          const text = item.replace(/<\/?li>/gi, "").trim()
-          return `${counter++}. ${text}`
-        })
-        .join("\n") + "\n\n"
-    )
+    return items
+      .map((item: string) => {
+        const text = item.replace(/<\/?li[^>]*>/gi, '').replace(/<br\s*\/?>/gi, '\n').trim()
+        return `${counter++}. ${text}`
+      })
+      .join('\n') + '\n\n'
   })
 
-  markdown = markdown.replace(/<\/p><p>/gi, "\n\n")
-  markdown = markdown.replace(/<p>/gi, "")
-  markdown = markdown.replace(/<\/p>/gi, "\n\n")
-  markdown = markdown.replace(/<br\s*\/?>/gi, "\n")
-  markdown = markdown.replace(/<div>/gi, "")
-  markdown = markdown.replace(/<\/div>/gi, "\n")
+  // Convert paragraphs
+  markdown = markdown.replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
 
-  markdown = markdown.replace(/\n{3,}/g, "\n\n")
+  // Convert breaks
+  markdown = markdown.replace(/<br\s*\/?>/gi, '\n')
+
+  // Clean up extra whitespace
+  markdown = markdown.replace(/\n{3,}/g, '\n\n')
   markdown = markdown.trim()
 
   return markdown

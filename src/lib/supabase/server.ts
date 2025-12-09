@@ -9,7 +9,7 @@ export async function createClient() {
 
   if (!supabaseUrl || !supabaseKey) {
     console.warn(
-      "[v0] Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
+      "Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
     )
     // Return a mock client that won't crash
     return createServerClient("https://placeholder.supabase.co", "placeholder-key", {
