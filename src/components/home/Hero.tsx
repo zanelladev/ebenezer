@@ -101,7 +101,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
           >
             <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1477414348463-c0eb7f1359b6?w=800&h=1000&fit=crop"
+                src="/assets/home_page_hero.jpg"
                 alt="Igreja Ebenézer"
                 className="w-full h-full object-cover"
               />

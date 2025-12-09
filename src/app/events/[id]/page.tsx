@@ -45,6 +45,15 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
         {/* Header */}
         <div className="mb-12 flex flex-col gap-8">
+          {event.banner_url && (
+            <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-3xl overflow-hidden">
+              <img
+                src={event.banner_url}
+                alt={event.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3">
               <div className="h-1 w-12 bg-primary rounded-full"></div>

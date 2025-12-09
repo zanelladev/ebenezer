@@ -18,15 +18,21 @@ export default async function Home() {
   // Fetch latest blog posts (3)
   const { data: posts } = await supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(3)
 
+  // Helper function to extract time from date
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  }
+
   // Prepare featured event for hero
   const featuredEvent =
     events && events.length > 0
       ? {
         title: events[0].name,
         date: new Date(events[0].date).toLocaleDateString("pt-BR"),
-        time: events[0].time || "A definir",
+        time: formatTime(events[0].date),
         location: events[0].location,
-        image: events[0].banner_image_url || events[0].image_url,
+        image: events[0].banner_url,
       }
       : null
 
@@ -37,9 +43,9 @@ export default async function Home() {
         id: event.id,
         title: event.name,
         date: event.date,
-        time: event.time || "A definir",
+        time: formatTime(event.date),
         location: event.location,
-        image_url: event.banner_image_url || event.image_url,
+        image_url: event.banner_url,
       }))
       : []
 
@@ -50,7 +56,7 @@ export default async function Home() {
       title: post.name,
       author: post.author_name || "Pastor Marcos",
       read_time: 9,
-      image_url: post.banner_image_url || post.image_url,
+      image_url: post.banner_url,
     }))
     : []
 

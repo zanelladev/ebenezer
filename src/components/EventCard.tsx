@@ -24,6 +24,15 @@ export default function EventCard({ event }: { event: Event }) {
     >
       <Link href={`/events/${event.id}`} className="block h-full">
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] h-full flex flex-col">
+          {event.banner_url && (
+            <div className="relative w-full h-48 overflow-hidden">
+              <img
+                src={event.banner_url}
+                alt={event.name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+          )}
           <div className="p-6 flex flex-col gap-4 flex-1">
             <div className="text-primary font-display font-semibold text-sm">{formatDate(event.date)}</div>
             <h3 className="font-display text-2xl font-bold text-foreground group-hover:text-primary transition-colors leading-snug flex-1">

@@ -17,6 +17,7 @@ export interface Database {
                     date: string
                     location: string
                     content_url: string
+                    banner_url: string | null
                 }
                 Insert: {
                     id?: string
@@ -25,6 +26,7 @@ export interface Database {
                     date: string
                     location: string
                     content_url: string
+                    banner_url?: string | null
                 }
                 Update: {
                     id?: string
@@ -33,6 +35,7 @@ export interface Database {
                     date?: string
                     location?: string
                     content_url?: string
+                    banner_url?: string | null
                 }
             }
             posts: {
@@ -42,6 +45,7 @@ export interface Database {
                     name: string
                     author_name: string
                     content_url: string
+                    banner_url: string | null
                 }
                 Insert: {
                     id?: string
@@ -49,6 +53,7 @@ export interface Database {
                     name: string
                     author_name: string
                     content_url: string
+                    banner_url?: string | null
                 }
                 Update: {
                     id?: string
@@ -56,6 +61,7 @@ export interface Database {
                     name?: string
                     author_name?: string
                     content_url?: string
+                    banner_url?: string | null
                 }
             }
         }

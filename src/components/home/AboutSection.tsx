@@ -52,11 +52,10 @@ export default function AboutSection() {
           >
             <div className="relative w-full h-[400px] lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=700&h=500&fit=crop"
+                src="/assets/about_community.jpg"
                 alt="Sobre a comunidade"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
             </div>
           </motion.div>
         </div>
