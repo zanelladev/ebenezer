@@ -72,15 +72,16 @@ export default function BlogSection({ posts }: BlogSectionProps) {
                   href={`/blog/${post.id}`}
                   className="flex flex-col gap-5 bg-card border border-border rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
                 >
-                  <div className="w-full h-64 overflow-hidden bg-muted">
-                    <img
-                      src={
-                        post.image_url ||
-                        "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=500&h=300&fit=crop"
-                      }
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
+                  <div className="w-full h-64 overflow-hidden bg-muted flex items-center justify-center">
+                    {post.image_url ? (
+                      <img
+                        src={post.image_url || "/placeholder.svg"}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <img src="/assets/Logo.svg" alt="Ebenézer Logo" className="w-40 h-10 object-contain opacity-30" />
+                    )}
                   </div>
                   <div className="flex flex-col gap-4 p-6">
                     <div className="flex items-center gap-4 text-muted-foreground">

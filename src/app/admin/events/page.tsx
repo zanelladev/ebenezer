@@ -46,10 +46,13 @@ export default function AdminEventsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const date = new Date(dateString)
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
@@ -90,23 +93,26 @@ export default function AdminEventsPage() {
           <span className="font-montserrat font-medium">Back to Dashboard</span>
         </Link>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div className="flex flex-col gap-2">
-            <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">GERENCIAMENTO</p>
-            <h1 className="font-montserrat text-4xl font-semibold text-[#002F34]">Events Management</h1>
+            <p className="font-lato text-sm font-semibold text-[#047A81] uppercase tracking-wide">GERENCIAMENTO</p>
+            <h1 className="font-montserrat text-3xl font-semibold text-[#002F34]">Events Management</h1>
           </div>
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-[#009CA3] text-white px-6 py-3 rounded-lg hover:bg-[#047A81] transition-colors font-montserrat font-semibold shadow-md"
+            className="inline-flex items-center gap-2 bg-[#009CA3] text-white px-5 py-2.5 rounded-lg hover:bg-[#047A81] transition-colors font-montserrat font-medium text-sm shadow-sm"
           >
-            + Create Event
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create Event
           </button>
         </div>
 
         {loading ? (
           <p className="text-[#002F34]/80">Loading events...</p>
         ) : events.length === 0 ? (
-          <div className="text-center py-16 bg-[#EFFEFD] rounded-2xl">
+          <div className="text-center py-16 bg-white border border-[#002F34]/10 rounded-xl">
             <p className="text-[#002F34]/80 mb-4 text-lg">No events yet</p>
             <button
               onClick={() => setIsCreating(true)}
@@ -116,29 +122,29 @@ export default function AdminEventsPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4">
             {events.map((event) => (
               <div
                 key={event.id}
-                className="bg-[#EFFEFD] p-6 lg:p-8 rounded-2xl border-2 border-transparent hover:border-[#009CA3] transition-all"
+                className="bg-white p-6 rounded-xl border border-[#002F34]/10 hover:border-[#009CA3] transition-all"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                   <div className="flex-1">
-                    <h3 className="font-montserrat text-2xl font-semibold text-[#002F34] mb-3">{event.name}</h3>
-                    <p className="text-[#009CA3] font-medium mb-2 text-sm sm:text-base">
+                    <h3 className="font-montserrat text-xl font-semibold text-[#002F34] mb-2">{event.name}</h3>
+                    <p className="text-[#002F34]/60 font-medium text-sm">
                       📅 {formatDate(event.date)} • 📍 {event.location}
                     </p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => setEditingEvent(event)}
-                      className="px-5 py-2.5 bg-[#009CA3] text-white rounded-lg hover:bg-[#047A81] transition-colors font-montserrat font-medium"
+                      className="px-4 py-2 border border-[#009CA3] text-[#009CA3] rounded-lg hover:bg-[#009CA3] hover:text-white transition-colors font-montserrat font-medium text-sm"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(event.id)}
-                      className="px-5 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-montserrat font-medium"
+                      className="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors font-montserrat font-medium text-sm"
                     >
                       Delete
                     </button>

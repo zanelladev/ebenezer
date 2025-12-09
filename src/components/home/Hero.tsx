@@ -59,15 +59,16 @@ export default function Hero({ featuredEvent }: HeroProps) {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-6">
-                  <div className="w-full sm:w-40 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
-                    <img
-                      src={
-                        featuredEvent.image ||
-                        "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=160&h=128&fit=crop"
-                      }
-                      alt="Event preview"
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-full sm:w-40 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
+                    {featuredEvent.image ? (
+                      <img
+                        src={featuredEvent.image || "/placeholder.svg"}
+                        alt="Event preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img src="/assets/Logo.svg" alt="Ebenézer Logo" className="w-32 h-8 object-contain opacity-50" />
+                    )}
                   </div>
                   <div className="flex flex-col gap-3 flex-1">
                     <h4 className="font-display text-xl font-semibold text-foreground">{featuredEvent.title}</h4>

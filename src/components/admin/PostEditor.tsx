@@ -7,13 +7,19 @@ import { fetchMarkdownContent, generateFilename, uploadMarkdownFile, uploadImage
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
 import RichTextEditor from "./RichTextEditor"
-import { ImagePlus } from "lucide-react"
+import { ImagePlus, ArrowLeft } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export default function PostEditor({ post, onSave, onCancel }: Props) {
   const [name, setName] = useState(post?.name || "")
   const [content, setContent] = useState("")
   const [authorName, setAuthorName] = useState(post?.author_name || "")
+  const [datetime, setDatetime] = useState(() => {
+    if (post?.created_at) {
+      return post.created_at.slice(0, 16)
+    }
+    return ""
+  })
   const [bannerUrl, setBannerUrl] = useState(post?.banner_url || "")
   const [uploadingBanner, setUploadingBanner] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -72,6 +78,7 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
         content_url: url,
         author_name: authorName,
         banner_url: bannerUrl || null,
+        ...(datetime && { created_at: new Date(datetime).toISOString() }),
       }
 
       if (post) {
@@ -92,7 +99,6 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
         }
       }
     } catch (error) {
-      console.error("Error saving post:", error)
       alert("An error occurred while saving")
     }
 
@@ -101,9 +107,19 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <h1 className="font-display text-4xl font-bold text-foreground mb-8">
-        {post ? AdminPostsResources.editor.titleEdit : AdminPostsResources.editor.titleNew}
-      </h1>
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="p-2 hover:bg-accent rounded-lg transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-6 h-6 text-foreground" />
+        </button>
+        <h1 className="font-display text-4xl font-bold text-foreground">
+          {post ? AdminPostsResources.editor.titleEdit : AdminPostsResources.editor.titleNew}
+        </h1>
+      </div>
 
       {loading ? (
         <div className="text-center py-12">
@@ -168,6 +184,16 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Created Date</label>
+            <input
+              type="datetime-local"
+              value={datetime}
+              onChange={(e) => setDatetime(e.target.value)}
+              className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-foreground mb-2">
               {AdminPostsResources.editor.fields.content.label} *
             </label>
@@ -177,19 +203,19 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
 
           <div className="flex gap-4">
             <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:bg-primary/90 transition-all font-medium disabled:opacity-50 shadow-sm"
-            >
-              {saving ? AdminPostsResources.editor.actions.saving : AdminPostsResources.editor.actions.save}
-            </button>
-            <button
               type="button"
               onClick={onCancel}
               disabled={saving}
               className="flex-1 bg-secondary text-secondary-foreground py-3 rounded-xl hover:bg-secondary/80 transition-all font-medium disabled:opacity-50"
             >
               {AdminPostsResources.editor.actions.cancel}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:bg-primary/90 transition-all font-medium disabled:opacity-50 shadow-sm"
+            >
+              {saving ? AdminPostsResources.editor.actions.saving : AdminPostsResources.editor.actions.save}
             </button>
           </div>
         </form>

@@ -9,7 +9,7 @@ import type { Database } from "@/lib/supabase/types"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import RichTextEditor from "./RichTextEditor"
-import { ImagePlus } from "lucide-react"
+import { ImagePlus, ArrowLeft } from "lucide-react"
 
 // Dynamic import for markdown editor to avoid SSR issues
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
@@ -25,7 +25,13 @@ interface Props {
 
 export default function EventEditor({ event, onSave, onCancel }: Props) {
   const [name, setName] = useState(event?.name || "")
-  const [date, setDate] = useState(event?.date?.split("T")[0] || "")
+  const [datetime, setDatetime] = useState(() => {
+    if (event?.date) {
+      // Convert ISO string to datetime-local format (YYYY-MM-DDTHH:mm)
+      return event.date.slice(0, 16)
+    }
+    return ""
+  })
   const [location, setLocation] = useState(event?.location || "")
   const [content, setContent] = useState("")
   const [bannerUrl, setBannerUrl] = useState(event?.banner_url || "")
@@ -83,7 +89,7 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
 
       const eventData: EventInsert = {
         name,
-        date,
+        date: datetime ? new Date(datetime).toISOString() : new Date().toISOString(),
         location,
         content_url: url,
         banner_url: bannerUrl || null,
@@ -107,7 +113,6 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
         }
       }
     } catch (error) {
-      console.error("Error saving event:", error)
       alert("An error occurred while saving")
     }
 
@@ -116,9 +121,19 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <h1 className="font-display text-4xl font-bold text-foreground mb-8">
-        {event ? AdminEventsResources.editor.titleEdit : AdminEventsResources.editor.titleNew}
-      </h1>
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="p-2 hover:bg-accent rounded-lg transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-6 h-6 text-foreground" />
+        </button>
+        <h1 className="font-display text-4xl font-bold text-foreground">
+          {event ? AdminEventsResources.editor.titleEdit : AdminEventsResources.editor.titleNew}
+        </h1>
+      </div>
 
       {loading ? (
         <div className="text-center py-12">
@@ -173,9 +188,9 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
               {AdminEventsResources.editor.fields.date.label} *
             </label>
             <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              type="datetime-local"
+              value={datetime}
+              onChange={(e) => setDatetime(e.target.value)}
               required
               className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
             />
@@ -205,19 +220,19 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
 
           <div className="flex gap-4">
             <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:bg-primary/90 transition-all font-medium disabled:opacity-50 shadow-sm"
-            >
-              {saving ? AdminEventsResources.editor.actions.saving : AdminEventsResources.editor.actions.save}
-            </button>
-            <button
               type="button"
               onClick={onCancel}
               disabled={saving}
               className="flex-1 bg-secondary text-secondary-foreground py-3 rounded-xl hover:bg-secondary/80 transition-all font-medium disabled:opacity-50"
             >
               {AdminEventsResources.editor.actions.cancel}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:bg-primary/90 transition-all font-medium disabled:opacity-50 shadow-sm"
+            >
+              {saving ? AdminEventsResources.editor.actions.saving : AdminEventsResources.editor.actions.save}
             </button>
           </div>
         </form>

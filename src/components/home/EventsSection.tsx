@@ -80,15 +80,16 @@ export default function EventsSection({ events }: EventsSectionProps) {
                   href={`/events/${event.id}`}
                   className="flex flex-col gap-5 p-6 bg-card border border-border rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
                 >
-                  <div className="w-full h-56 rounded-xl overflow-hidden bg-muted">
-                    <img
-                      src={
-                        event.image_url ||
-                        "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=400&fit=crop"
-                      }
-                      alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
+                  <div className="w-full h-56 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+                    {event.image_url ? (
+                      <img
+                        src={event.image_url || "/placeholder.svg"}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <img src="/assets/Logo.svg" alt="Ebenézer Logo" className="w-40 h-10 object-contain opacity-30" />
+                    )}
                   </div>
                   <div className="flex flex-col gap-4">
                     <h3 className="font-display text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -97,7 +98,13 @@ export default function EventsSection({ events }: EventsSectionProps) {
                     <div className="flex flex-col gap-2.5">
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <Calendar className="w-5 h-5" />
-                        <span className="text-sm">{new Date(event.date).toLocaleDateString("pt-BR")}</span>
+                        <span className="text-sm">
+                          {(() => {
+                            const [year, month, day] = event.date.split("T")[0].split("-")
+                            const date = new Date(Number(year), Number(month) - 1, Number(day))
+                            return date.toLocaleDateString("pt-BR")
+                          })()}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <Clock className="w-5 h-5" />
