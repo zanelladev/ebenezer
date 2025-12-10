@@ -268,7 +268,7 @@ export const DonateResources = {
         pix: {
             title: 'PIX',
             description: 'Chave PIX CNPJ',
-            key: '09614717000106',
+            key: '09.614.717/0001-06',
             copyButton: 'Copiar Chave PIX',
             copied: 'Copiado!',
         },
