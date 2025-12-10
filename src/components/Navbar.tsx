@@ -1,5 +1,6 @@
 "use client"
 
+import { NavbarResources } from "@/lib/resources"
 import { AnimatePresence, motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -41,9 +42,8 @@ export default function Navbar() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className={`rounded-2xl transition-all duration-500 ${
-            scrolled ? "bg-card/95 backdrop-blur-lg shadow-xl border border-border" : "bg-card shadow-md"
-          }`}
+          className={`rounded-2xl transition-all duration-500 ${scrolled ? "bg-card/95 backdrop-blur-lg shadow-xl border border-border" : "bg-card shadow-md"
+            }`}
         >
           <div className="flex justify-between items-center gap-8 px-6 h-20">
             {/* Logo */}
@@ -51,7 +51,7 @@ export default function Navbar() {
               <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
                 <Image
                   src="/assets/Logo.svg"
-                  alt="Comunidade Ebenezer"
+                  alt={NavbarResources.logoAlt}
                   width={192}
                   height={48}
                   className="w-40 h-10 lg:w-48 lg:h-12 transition-opacity group-hover:opacity-80"
@@ -66,9 +66,8 @@ export default function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`relative px-4 py-2 font-display text-base font-medium rounded-lg transition-all duration-300 hover:bg-secondary ${
-                    isActive(item.href) ? "text-primary" : "text-foreground/70 hover:text-foreground"
-                  }`}
+                  className={`relative px-4 py-2 font-display text-base font-medium rounded-lg transition-all duration-300 hover:bg-secondary ${isActive(item.href) ? "text-primary" : "text-foreground/70 hover:text-foreground"
+                    }`}
                 >
                   {item.name}
                   {isActive(item.href) && (
@@ -87,7 +86,7 @@ export default function Navbar() {
                 href="/donate"
                 className="group relative font-display font-semibold text-base text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 px-6 h-11 flex items-center justify-center rounded-xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-105"
               >
-                <span className="relative z-10">Contribua</span>
+                <span className="relative z-10">{NavbarResources.donateButton}</span>
                 <motion.div
                   className="absolute inset-0 bg-foreground/10"
                   initial={{ x: "-100%" }}
@@ -101,7 +100,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden p-2 rounded-xl hover:bg-secondary transition-all duration-300 flex-shrink-0"
-              aria-label="Toggle menu"
+              aria-label={NavbarResources.toggleMenu}
             >
               <motion.svg
                 className="w-6 h-6 text-foreground"
@@ -139,11 +138,10 @@ export default function Navbar() {
                       <Link
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className={`block px-4 py-3 font-display text-base font-medium rounded-xl transition-all duration-300 ${
-                          isActive(item.href)
+                        className={`block px-4 py-3 font-display text-base font-medium rounded-xl transition-all duration-300 ${isActive(item.href)
                             ? "text-primary bg-secondary"
                             : "text-foreground/70 hover:text-foreground hover:bg-secondary"
-                        }`}
+                          }`}
                       >
                         {item.name}
                       </Link>

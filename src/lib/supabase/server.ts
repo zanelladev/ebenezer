@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { SystemResources } from "../resources"
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -8,9 +9,7 @@ export async function createClient() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
   if (!supabaseUrl || !supabaseKey) {
-    console.warn(
-      "Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
-    )
+    console.warn(SystemResources.errors.supabaseCredentialsMissing)
     // Return a mock client that won't crash
     return createServerClient("https://placeholder.supabase.co", "placeholder-key", {
       cookies: {

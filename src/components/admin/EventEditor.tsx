@@ -2,14 +2,14 @@
 
 import type React from "react"
 
-import { AdminEventsResources } from "@/lib/resources"
-import { fetchMarkdownContent, generateFilename, uploadMarkdownFile, uploadImage } from "@/lib/storage"
+import { AdminEventsResources, CommonResources } from "@/lib/resources"
+import { fetchMarkdownContent, generateFilename, uploadImage, uploadMarkdownFile } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
+import { ArrowLeft, ImagePlus } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import RichTextEditor from "./RichTextEditor"
-import { ImagePlus, ArrowLeft } from "lucide-react"
 
 // Dynamic import for markdown editor to avoid SSR issues
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
@@ -61,7 +61,7 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
     const { url, error } = await uploadImage(file, "banners", filename)
 
     if (error || !url) {
-      alert("Failed to upload banner image")
+      alert(CommonResources.errors.bannerUploadFailed)
       setUploadingBanner(false)
       return
     }
@@ -82,7 +82,7 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
       const { url, error: uploadError } = await uploadMarkdownFile(content, "events", filename)
 
       if (uploadError || !url) {
-        alert("Failed to upload markdown content")
+        alert(CommonResources.errors.contentUploadFailed)
         setSaving(false)
         return
       }
@@ -101,7 +101,7 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
         if (!error) {
           onSave()
         } else {
-          alert("Failed to save event")
+          alert(CommonResources.errors.updateFailed)
         }
       } else {
         const { error } = await supabase.from("events").insert([eventData])
@@ -109,11 +109,11 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
         if (!error) {
           onSave()
         } else {
-          alert("Failed to create event")
+          alert(CommonResources.errors.createFailed)
         }
       }
     } catch (error) {
-      alert("An error occurred while saving")
+      alert(CommonResources.errors.genericError)
     }
 
     setSaving(false)
@@ -126,7 +126,7 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
           type="button"
           onClick={onCancel}
           className="p-2 hover:bg-accent rounded-lg transition-colors"
-          aria-label="Go back"
+          aria-label={AdminEventsResources.editor.actions.back}
         >
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
@@ -156,13 +156,15 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Banner Image</label>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminEventsResources.editor.fields.banner.label}
+            </label>
             <div className="space-y-3">
               {bannerUrl && (
                 <div className="relative w-full h-48 rounded-xl overflow-hidden border border-border">
                   <img
                     src={bannerUrl || "/placeholder.svg"}
-                    alt="Banner preview"
+                    alt={AdminEventsResources.editor.fields.banner.preview}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -170,7 +172,11 @@ export default function EventEditor({ event, onSave, onCancel }: Props) {
               <label className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-xl hover:border-primary hover:bg-accent/50 transition-all cursor-pointer">
                 <ImagePlus className="w-5 h-5 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {uploadingBanner ? "Uploading..." : bannerUrl ? "Change Banner" : "Upload Banner"}
+                  {uploadingBanner
+                    ? AdminEventsResources.editor.fields.banner.uploading
+                    : bannerUrl
+                      ? AdminEventsResources.editor.fields.banner.change
+                      : AdminEventsResources.editor.fields.banner.button}
                 </span>
                 <input
                   type="file"

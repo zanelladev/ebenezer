@@ -1,10 +1,10 @@
 "use client"
 
 import { AdminDashboardResources } from "@/lib/resources"
-import Link from "next/link"
-import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
+import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
                 d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
               />
             </svg>
-            Visit Site
+            {AdminDashboardResources.actions.visitSite}
           </Link>
           <button
             onClick={handleLogout}
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
               />
             </svg>
-            {isLoggingOut ? "Logging out..." : "Logout"}
+            {isLoggingOut ? AdminDashboardResources.actions.loggingOut : AdminDashboardResources.actions.logout}
           </button>
         </div>
       </div>
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
             <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
               <span className="text-xl">📅</span>
             </div>
-            <p className="text-sm font-medium text-[#002F34]/60">Total Events</p>
+            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.totalEvents}</p>
           </div>
           <p className="text-3xl font-bold text-[#002F34]">--</p>
         </motion.div>
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
             <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
               <span className="text-xl">📝</span>
             </div>
-            <p className="text-sm font-medium text-[#002F34]/60">Blog Posts</p>
+            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.blogPosts}</p>
           </div>
           <p className="text-3xl font-bold text-[#002F34]">--</p>
         </motion.div>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
             <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
               <span className="text-xl">✨</span>
             </div>
-            <p className="text-sm font-medium text-[#002F34]/60">Active</p>
+            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.active}</p>
           </div>
           <p className="text-3xl font-bold text-[#002F34]">--</p>
         </motion.div>

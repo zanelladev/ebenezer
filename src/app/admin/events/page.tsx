@@ -2,6 +2,7 @@
 
 import AdminLayout from "@/components/admin/AdminLayout"
 import EventEditor from "@/components/admin/EventEditor"
+import { AdminDashboardResources, AdminEventsResources } from "@/lib/resources"
 import { deleteMarkdownFile } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
@@ -31,7 +32,7 @@ export default function AdminEventsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this event?")) return
+    if (!confirm(AdminEventsResources.confirmDelete)) return
 
     const eventToDelete = events.find((e) => e.id === id)
 
@@ -90,13 +91,13 @@ export default function AdminEventsPage() {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span className="font-montserrat font-medium">Back to Dashboard</span>
+          <span className="font-montserrat font-medium">{AdminDashboardResources.navigation.backToDashboard}</span>
         </Link>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div className="flex flex-col gap-2">
             <p className="font-lato text-sm font-semibold text-[#047A81] uppercase tracking-wide">GERENCIAMENTO</p>
-            <h1 className="font-montserrat text-3xl font-semibold text-[#002F34]">Events Management</h1>
+            <h1 className="font-montserrat text-3xl font-semibold text-[#002F34]">{AdminEventsResources.title}</h1>
           </div>
           <button
             onClick={() => setIsCreating(true)}
@@ -105,20 +106,20 @@ export default function AdminEventsPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Create Event
+            {AdminEventsResources.createButton}
           </button>
         </div>
 
         {loading ? (
-          <p className="text-[#002F34]/80">Loading events...</p>
+          <p className="text-[#002F34]/80">{AdminEventsResources.list.loadingText}</p>
         ) : events.length === 0 ? (
           <div className="text-center py-16 bg-white border border-[#002F34]/10 rounded-xl">
-            <p className="text-[#002F34]/80 mb-4 text-lg">No events yet</p>
+            <p className="text-[#002F34]/80 mb-4 text-lg">{AdminEventsResources.empty.title}</p>
             <button
               onClick={() => setIsCreating(true)}
               className="text-[#009CA3] hover:text-[#047A81] font-montserrat font-semibold"
             >
-              Create your first event
+              {AdminEventsResources.empty.action}
             </button>
           </div>
         ) : (
@@ -140,13 +141,13 @@ export default function AdminEventsPage() {
                       onClick={() => setEditingEvent(event)}
                       className="px-4 py-2 border border-[#009CA3] text-[#009CA3] rounded-lg hover:bg-[#009CA3] hover:text-white transition-colors font-montserrat font-medium text-sm"
                     >
-                      Edit
+                      {AdminEventsResources.actions.edit}
                     </button>
                     <button
                       onClick={() => handleDelete(event.id)}
                       className="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors font-montserrat font-medium text-sm"
                     >
-                      Delete
+                      {AdminEventsResources.actions.delete}
                     </button>
                   </div>
                 </div>

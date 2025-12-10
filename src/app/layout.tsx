@@ -1,7 +1,8 @@
-import type React from "react"
 import ConditionalLayout from "@/components/ConditionalLayout"
+import { SEOResources } from "@/lib/resources"
 import type { Metadata } from "next"
 import { Inter, Montserrat } from "next/font/google"
+import type React from "react"
 import "./globals.css"
 
 const inter = Inter({
@@ -18,8 +19,13 @@ const objektiv = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: "Ebenezer Church - Faith, Community, Hope",
-  description: "Welcome to Ebenezer Church - A community of faith, love, and hope",
+  title: SEOResources.defaultTitle,
+  description: SEOResources.defaultDescription,
+  icons: {
+    icon: '/assets/favicon.png',
+    shortcut: '/assets/favicon.png',
+    apple: '/assets/favicon.png',
+  },
 }
 
 export default function RootLayout({

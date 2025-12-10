@@ -106,8 +106,8 @@ export default function AboutPage() {
               <p>
                 Já era final da tarde, quando o Sr. Alfredo Oestereich e o pastor Luiz Adolfo Hegele retornavam de uma reunião distrital. Ficaram um bom tempo conversando na varanda da casa do Sr. Alfredo sobre a possibilidade de criar uma nova comunidade no bairro Barra do Rio Cerro. O Sr. Alfredo Oestereich, com seu sorriso maroto, falou ao pastor que esse problema já estava resolvido. Naquele momento, emocionado, disse ao pastor que doaria o terreno que se via ao fundo de sua varanda para iniciar os trabalhos da nova comunidade evangélica luterana na Barra do Rio Cerro.
               </p>                <p>
-                  A nova comunidade foi formada por 15 famílias, 16 membros votantes, totalizando 54 pessoas. Seu nome foi escolhido com base em 1Sm 7.12 (NTLH): &quot;Aí Samuel pegou uma pedra, pôs entre Mispa e Sem e disse: - Até aqui o Senhor Deus nos ajudou. Por isso deu a ela o nome de Ebenézer.&quot;
-                </p>
+                A nova comunidade foi formada por 15 famílias, 16 membros votantes, totalizando 54 pessoas. Seu nome foi escolhido com base em 1Sm 7.12 (NTLH): &quot;Aí Samuel pegou uma pedra, pôs entre Mispa e Sem e disse: - Até aqui o Senhor Deus nos ajudou. Por isso deu a ela o nome de Ebenézer.&quot;
+              </p>
             </div>
           </motion.div>
         </div>
@@ -256,7 +256,7 @@ export default function AboutPage() {
               Faça parte da nossa jornada de fé
             </h2>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-              Venha conhecer a Comunidade Ebenézer e descobrir como você pode crescer espiritualmente e fazer a diferença na vida de outras pessoas através do amor de Cristo.
+              Venha conhecer a Congregação Ebenézer e descobrir como você pode crescer espiritualmente e fazer a diferença na vida de outras pessoas através do amor de Cristo.
             </p>
             <Link
               href="/events"

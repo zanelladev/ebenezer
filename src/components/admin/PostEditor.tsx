@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { AdminPostsResources } from "@/lib/resources"
-import { fetchMarkdownContent, generateFilename, uploadMarkdownFile, uploadImage } from "@/lib/storage"
+import { AdminPostsResources, CommonResources } from "@/lib/resources"
+import { fetchMarkdownContent, generateFilename, uploadImage, uploadMarkdownFile } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
-import RichTextEditor from "./RichTextEditor"
-import { ImagePlus, ArrowLeft } from "lucide-react"
+import { ArrowLeft, ImagePlus } from "lucide-react"
 import { useEffect, useState } from "react"
+import RichTextEditor from "./RichTextEditor"
 
 export default function PostEditor({ post, onSave, onCancel }: Props) {
   const [name, setName] = useState(post?.name || "")
@@ -47,7 +47,7 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
     const { url, error } = await uploadImage(file, "banners", filename)
 
     if (error || !url) {
-      alert("Failed to upload banner image")
+      alert(CommonResources.errors.bannerUploadFailed)
       setUploadingBanner(false)
       return
     }
@@ -68,7 +68,7 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
       const { url, error: uploadError } = await uploadMarkdownFile(content, "posts", filename)
 
       if (uploadError || !url) {
-        alert("Failed to upload markdown content")
+        alert(CommonResources.errors.contentUploadFailed)
         setSaving(false)
         return
       }
@@ -87,7 +87,7 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
         if (!error) {
           onSave()
         } else {
-          alert("Failed to save post")
+          alert(CommonResources.errors.updateFailed)
         }
       } else {
         const { error } = await supabase.from("posts").insert([postData])
@@ -95,11 +95,11 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
         if (!error) {
           onSave()
         } else {
-          alert("Failed to create post")
+          alert(CommonResources.errors.createFailed)
         }
       }
     } catch (error) {
-      alert("An error occurred while saving")
+      alert(CommonResources.errors.genericError)
     }
 
     setSaving(false)
@@ -112,7 +112,7 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
           type="button"
           onClick={onCancel}
           className="p-2 hover:bg-accent rounded-lg transition-colors"
-          aria-label="Go back"
+          aria-label={AdminPostsResources.editor.actions.back}
         >
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
@@ -142,13 +142,15 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Banner Image</label>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminPostsResources.editor.fields.banner.label}
+            </label>
             <div className="space-y-3">
               {bannerUrl && (
                 <div className="relative w-full h-48 rounded-xl overflow-hidden border border-border">
                   <img
                     src={bannerUrl || "/placeholder.svg"}
-                    alt="Banner preview"
+                    alt={AdminPostsResources.editor.fields.banner.preview}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -156,7 +158,11 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
               <label className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-xl hover:border-primary hover:bg-accent/50 transition-all cursor-pointer">
                 <ImagePlus className="w-5 h-5 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {uploadingBanner ? "Uploading..." : bannerUrl ? "Change Banner" : "Upload Banner"}
+                  {uploadingBanner
+                    ? AdminPostsResources.editor.fields.banner.uploading
+                    : bannerUrl
+                      ? AdminPostsResources.editor.fields.banner.change
+                      : AdminPostsResources.editor.fields.banner.button}
                 </span>
                 <input
                   type="file"

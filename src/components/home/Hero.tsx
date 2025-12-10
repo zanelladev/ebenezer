@@ -32,7 +32,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                Bem-vindo à Comunidade Ebenézer
+                Bem-vindo à Congregação Ebenézer
               </motion.h1>
               <motion.p
                 className="text-lg sm:text-xl text-muted-foreground leading-relaxed"

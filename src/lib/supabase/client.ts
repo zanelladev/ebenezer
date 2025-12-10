@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr"
+import { SystemResources } from "../resources"
 
 let clientInstance: ReturnType<typeof createBrowserClient> | null = null
 
@@ -19,9 +20,7 @@ export function createClient() {
       : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 
   if (!supabaseUrl || !supabaseKey) {
-    console.warn(
-      "Supabase credentials are missing. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to environment variables.",
-    )
+    console.warn(SystemResources.errors.supabaseCredentialsMissing)
     // Return a mock client that won't crash but won't work either
     clientInstance = createBrowserClient("https://placeholder.supabase.co", "placeholder-key")
     return clientInstance

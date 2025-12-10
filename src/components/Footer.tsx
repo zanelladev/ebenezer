@@ -16,7 +16,7 @@ export default function Footer() {
               <div className="w-56 h-auto">
                 <Image
                   src="/assets/Logo.svg"
-                  alt="Comunidade Ebenezer"
+                  alt="Congregação Ebenézer"
                   width={224}
                   height={56}
                   className="w-full h-full brightness-0 invert"
@@ -126,7 +126,7 @@ export default function Footer() {
         <div className="w-full max-w-7xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <p className="font-sans text-sm text-background/70 leading-relaxed">
-              © {currentYear} IELB, Comunidade Ebenézer - CNPJ 83.784.260/0001-00 | Todos os direitos reservados
+              © {currentYear} IELB, Congregação Ebenézer - CNPJ 83.784.260/0001-00 | Todos os direitos reservados
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
               <Link

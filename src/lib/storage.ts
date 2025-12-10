@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client";
+import { SystemResources } from "./resources";
 
 /**
  * Upload a markdown file to Supabase Storage
@@ -42,7 +43,7 @@ export async function fetchMarkdownContent(url: string): Promise<{ content: stri
   try {
     const response = await fetch(url)
     if (!response.ok) {
-      throw new Error("Failed to fetch markdown content")
+      throw new Error(SystemResources.errors.fetchMarkdownFailed)
     }
     const content = await response.text()
     return { content, error: null }
@@ -62,7 +63,7 @@ export async function deleteMarkdownFile(url: string): Promise<{ success: boolea
   // Extract the file path from the URL
   const urlParts = url.split("/markdown-content/")
   if (urlParts.length < 2) {
-    return { success: false, error: new Error("Invalid URL format") }
+    return { success: false, error: new Error(SystemResources.errors.invalidUrlFormat) }
   }
 
   const filePath = urlParts[1]

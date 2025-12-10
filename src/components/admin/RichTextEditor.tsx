@@ -1,5 +1,6 @@
 "use client"
 
+import { RichTextEditorResources } from "@/lib/resources"
 import { uploadImage } from "@/lib/storage"
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
@@ -169,12 +170,12 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
       const { url, error } = await uploadImage(file, type, filename)
 
       if (error || !url) {
-        alert('Failed to upload image')
+        alert('Falha ao fazer upload da imagem')
         setUploading(false)
         return
       }
 
-      editor.chain().focus().setImage({ src: url, alt: 'Uploaded image' }).run()
+      editor.chain().focus().setImage({ src: url, alt: 'Imagem' }).run()
       setUploading(false)
     }
     input.click()
@@ -193,13 +194,13 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
       const { url, error } = await uploadImage(file, type, filename)
 
       if (error || !url) {
-        alert('Failed to upload image')
+        alert('Falha ao fazer upload da imagem')
         setUploading(false)
         return
       }
 
       // Update the selected image
-      editor.chain().focus().setImage({ src: url, alt: 'Uploaded image' }).run()
+      editor.chain().focus().setImage({ src: url, alt: 'Imagem' }).run()
       setUploading(false)
     }
     input.click()
@@ -265,7 +266,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={`p-2 rounded-lg transition-colors ${editor.isActive('bulletList') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
             }`}
-          title="Bullet List"
+          title={RichTextEditorResources.toolbar.bulletList}
         >
           <List className="w-4 h-4" />
         </button>
@@ -275,7 +276,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={`p-2 rounded-lg transition-colors ${editor.isActive('orderedList') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
             }`}
-          title="Numbered List"
+          title={RichTextEditorResources.toolbar.orderedList}
         >
           <ListOrdered className="w-4 h-4" />
         </button>
@@ -285,7 +286,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
           onClick={setLink}
           className={`p-2 rounded-lg transition-colors ${editor.isActive('link') ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
             }`}
-          title="Add Link"
+          title={RichTextEditorResources.toolbar.link}
         >
           <LinkIcon className="w-4 h-4" />
         </button>
@@ -295,7 +296,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
           onClick={addImage}
           disabled={uploading}
           className="p-2 rounded-lg transition-colors hover:bg-accent disabled:opacity-50"
-          title="Upload Image"
+          title={RichTextEditorResources.toolbar.image}
         >
           <ImageIcon className="w-4 h-4" />
         </button>
@@ -316,7 +317,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
             type="button"
             onClick={editLink}
             className="p-2 rounded hover:bg-accent transition-colors"
-            title="Edit Link"
+            title={RichTextEditorResources.bubbleMenu.editLink}
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -324,7 +325,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
             type="button"
             onClick={removeLink}
             className="p-2 rounded hover:bg-accent text-destructive transition-colors"
-            title="Remove Link"
+            title={RichTextEditorResources.bubbleMenu.removeLink}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -344,7 +345,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
             type="button"
             onClick={replaceSelectedImage}
             className="p-2 rounded hover:bg-accent transition-colors"
-            title="Replace Image"
+            title={RichTextEditorResources.bubbleMenu.editImage}
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -355,7 +356,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
               setShowImageBubble(false)
             }}
             className="p-2 rounded hover:bg-accent text-destructive transition-colors"
-            title="Delete Image"
+            title={RichTextEditorResources.bubbleMenu.removeImage}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -364,7 +365,7 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
 
       {uploading && (
         <div className="p-2 text-sm text-muted-foreground text-center border-t border-border">
-          Uploading image...
+          {RichTextEditorResources.dialogs.image.uploading}
         </div>
       )}
 
@@ -373,23 +374,27 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowLinkDialog(false)}>
           <div className="bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold mb-4">
-              {isEditingLink ? 'Edit Link' : 'Add Link'}
+              {isEditingLink ? RichTextEditorResources.dialogs.link.title : RichTextEditorResources.dialogs.link.title}
             </h3>
 
             {linkText && (
               <div className="mb-4">
-                <label className="text-sm text-muted-foreground block mb-2">Link Text</label>
+                <label className="text-sm text-muted-foreground block mb-2">
+                  {RichTextEditorResources.dialogs.link.textLabel}
+                </label>
                 <div className="px-3 py-2 bg-muted rounded-lg text-sm">{linkText}</div>
               </div>
             )}
 
             <div className="mb-4">
-              <label className="text-sm font-medium block mb-2">URL</label>
+              <label className="text-sm font-medium block mb-2">
+                {RichTextEditorResources.dialogs.link.urlLabel}
+              </label>
               <input
                 type="url"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://example.com"
+                placeholder={RichTextEditorResources.dialogs.link.urlPlaceholder}
                 className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                 autoFocus
                 onKeyDown={(e) => {
@@ -408,14 +413,18 @@ export default function RichTextEditor({ value, onChange, type }: RichTextEditor
                 onClick={() => setShowLinkDialog(false)}
                 className="px-4 py-2 rounded-lg border border-border hover:bg-accent transition-colors"
               >
-                Cancel
+                {RichTextEditorResources.dialogs.link.cancel}
               </button>
               <button
                 type="button"
                 onClick={handleLinkSubmit}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
               >
-                {linkUrl ? (isEditingLink ? 'Update Link' : 'Add Link') : 'Remove Link'}
+                {linkUrl
+                  ? (isEditingLink
+                    ? RichTextEditorResources.dialogs.link.update
+                    : RichTextEditorResources.dialogs.link.insert)
+                  : RichTextEditorResources.dialogs.link.remove}
               </button>
             </div>
           </div>
