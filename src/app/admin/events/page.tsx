@@ -2,7 +2,7 @@
 
 import AdminLayout from "@/components/admin/AdminLayout"
 import EventEditor from "@/components/admin/EventEditor"
-import { AdminDashboardResources, AdminEventsResources } from "@/lib/resources"
+import { AdminDashboardResources, AdminEventsResources, DateResources } from "@/lib/resources"
 import { deleteMarkdownFile } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
@@ -48,13 +48,7 @@ export default function AdminEventsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    return date.toLocaleString(DateResources.locale, DateResources.formats.longWithTime)
   }
 
   if (isCreating || editingEvent) {

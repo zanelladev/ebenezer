@@ -2,7 +2,7 @@
 
 import AdminLayout from "@/components/admin/AdminLayout"
 import PostEditor from "@/components/admin/PostEditor"
-import { AdminDashboardResources, AdminPostsResources } from "@/lib/resources"
+import { AdminDashboardResources, AdminPostsResources, CommonResources, DateResources } from "@/lib/resources"
 import { deleteMarkdownFile } from "@/lib/storage"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/lib/supabase/types"
@@ -48,13 +48,7 @@ export default function AdminPostsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    return date.toLocaleString(DateResources.locale, DateResources.formats.longWithTime)
   }
 
   if (isCreating || editingPost) {
@@ -133,7 +127,7 @@ export default function AdminPostsPage() {
                   <div className="flex-1">
                     <h3 className="font-montserrat text-xl font-semibold text-[#002F34] mb-2">{post.name}</h3>
                     <p className="text-[#002F34]/60 text-sm">
-                      📅 {formatDate(post.created_at)} • ✍️ By {post.author_name}
+                      ✍️ {CommonResources.common.by} {post.author_name}
                     </p>
                   </div>
                   <div className="flex gap-2">

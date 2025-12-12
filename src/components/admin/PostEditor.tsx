@@ -14,12 +14,6 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
   const [name, setName] = useState(post?.name || "")
   const [content, setContent] = useState("")
   const [authorName, setAuthorName] = useState(post?.author_name || "")
-  const [datetime, setDatetime] = useState(() => {
-    if (post?.created_at) {
-      return post.created_at.slice(0, 16)
-    }
-    return ""
-  })
   const [bannerUrl, setBannerUrl] = useState(post?.banner_url || "")
   const [uploadingBanner, setUploadingBanner] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -73,16 +67,18 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
         return
       }
 
-      const postData: PostInsert = {
+      const postData = {
         name,
         content_url: url,
         author_name: authorName,
         banner_url: bannerUrl || null,
-        ...(datetime && { created_at: new Date(datetime).toISOString() }),
-      }
+      } as any
 
       if (post) {
-        const { error } = await supabase.from("posts").update(postData).eq("id", post.id)
+        const { error } = await (supabase as any)
+          .from("posts")
+          .update(postData)
+          .eq("id", post.id)
 
         if (!error) {
           onSave()
@@ -90,7 +86,9 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
           alert(CommonResources.errors.updateFailed)
         }
       } else {
-        const { error } = await supabase.from("posts").insert([postData])
+        const { error } = await (supabase as any)
+          .from("posts")
+          .insert([postData])
 
         if (!error) {
           onSave()
@@ -186,16 +184,6 @@ export default function PostEditor({ post, onSave, onCancel }: Props) {
               required
               className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
               placeholder={AdminPostsResources.editor.fields.author.placeholder}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Created Date</label>
-            <input
-              type="datetime-local"
-              value={datetime}
-              onChange={(e) => setDatetime(e.target.value)}
-              className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
             />
           </div>
 

@@ -2,7 +2,8 @@
 
 import { DonateResources } from "@/lib/resources"
 import { motion } from "framer-motion"
-import { Building2, HandHeart, MapPin, QrCode, Users } from "lucide-react"
+import { Building2, CreditCard, HandHeart, MapPin, QrCode, Users } from "lucide-react"
+import Image from "next/image"
 
 export default function DonatePage() {
   return (
@@ -100,7 +101,8 @@ export default function DonatePage() {
                 {DonateResources.methods.title}
               </h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* PIX with QR Code */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -115,15 +117,61 @@ export default function DonatePage() {
                   {DonateResources.methods.pix.title}
                 </h4>
                 <p className="text-base text-muted-foreground">{DonateResources.methods.pix.description}</p>
-                <p className="text-primary font-mono font-bold text-sm break-all bg-primary/5 p-4 rounded-xl">
+
+                {/* QR Code Image */}
+                <div className="flex justify-center my-2">
+                  <div className="relative w-48 h-48 bg-white p-2 rounded-xl border-2 border-primary/20">
+                    <Image
+                      src={DonateResources.methods.pix.qrCode}
+                      alt="QR Code PIX"
+                      width={192}
+                      height={192}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-primary font-mono font-bold text-sm break-all bg-primary/5 p-4 rounded-xl text-center">
                   {DonateResources.methods.pix.key}
                 </p>
               </motion.div>
+
+              {/* Bank Transfer */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-card border border-border p-8 rounded-2xl flex flex-col gap-5 shadow-lg"
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-display text-xl font-semibold text-foreground">
+                  {DonateResources.methods.bank.title}
+                </h4>
+                <div className="space-y-3 text-base text-muted-foreground">
+                  <p>
+                    <span className="font-semibold text-foreground">{DonateResources.methods.bank.bank}:</span>{" "}
+                    {DonateResources.methods.bank.bankName}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">{DonateResources.methods.bank.agency}:</span>{" "}
+                    {DonateResources.methods.bank.agencyNumber}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">{DonateResources.methods.bank.account}:</span>{" "}
+                    {DonateResources.methods.bank.accountNumber}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* In Person */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
                 className="bg-card border border-border p-8 rounded-2xl flex flex-col gap-5 shadow-lg"
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">

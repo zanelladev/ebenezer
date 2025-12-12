@@ -41,7 +41,7 @@ export default function BlogCard({ post }: { post: Post }) {
               </div>
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span className="line-clamp-1">{post.author_name}</span>
+                <span className="line-clamp-1">{CommonResources.common.by} {post.author_name}</span>
               </div>
             </div>
             <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors leading-snug flex-1">

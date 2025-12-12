@@ -1,6 +1,6 @@
 "use client"
 
-import { AdminDashboardResources } from "@/lib/resources"
+import { AdminDashboardResources, CommonResources } from "@/lib/resources"
 import { createClient } from "@/lib/supabase/client"
 import { motion } from "framer-motion"
 import Image from "next/image"
@@ -109,60 +109,13 @@ export default function AdminDashboard() {
         <p className="text-lg text-[#002F34]/70 max-w-2xl leading-relaxed">{AdminDashboardResources.welcome}</p>
       </motion.div>
 
-      {/* Stats Overview */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12"
-      >
-        <motion.div
-          variants={itemVariants}
-          className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#009CA3] transition-all"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
-              <span className="text-xl">📅</span>
-            </div>
-            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.totalEvents}</p>
-          </div>
-          <p className="text-3xl font-bold text-[#002F34]">--</p>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#009CA3] transition-all"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
-              <span className="text-xl">📝</span>
-            </div>
-            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.blogPosts}</p>
-          </div>
-          <p className="text-3xl font-bold text-[#002F34]">--</p>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#009CA3] transition-all"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#009CA3]/10 rounded-lg flex items-center justify-center">
-              <span className="text-xl">✨</span>
-            </div>
-            <p className="text-sm font-medium text-[#002F34]/60">{AdminDashboardResources.stats.active}</p>
-          </div>
-          <p className="text-3xl font-bold text-[#002F34]">--</p>
-        </motion.div>
-      </motion.div>
-
       {/* Quick Actions */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
       >
-        <h2 className="font-montserrat text-2xl font-semibold text-[#002F34] mb-6">Quick Actions</h2>
+        <h2 className="font-montserrat text-2xl font-semibold text-[#002F34] mb-6">{AdminDashboardResources.quickActionsTitle}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
             href="/admin/events"
@@ -173,7 +126,7 @@ export default function AdminDashboard() {
                 <span className="text-3xl group-hover:scale-110 transition-transform duration-300">📅</span>
               </div>
               <div className="flex items-center gap-2 text-[#009CA3] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-sm font-semibold">Open</span>
+                <span className="text-sm font-semibold">{CommonResources.actions.open ?? 'Abrir'}</span>
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M6 3L11 8L6 13"
@@ -203,7 +156,7 @@ export default function AdminDashboard() {
                 <span className="text-3xl group-hover:scale-110 transition-transform duration-300">📝</span>
               </div>
               <div className="flex items-center gap-2 text-[#009CA3] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-sm font-semibold">Open</span>
+                <span className="text-sm font-semibold">{CommonResources.actions.open ?? 'Abrir'}</span>
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M6 3L11 8L6 13"

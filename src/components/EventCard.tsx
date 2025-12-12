@@ -48,3 +48,5 @@ export default function EventCard({ event }: { event: Event }) {
     </motion.div>
   )
 }
+
+// Sem alterações necessárias: datas já usam DateResources.locale = 'pt-BR' e formato longo.

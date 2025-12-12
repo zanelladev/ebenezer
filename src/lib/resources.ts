@@ -50,6 +50,7 @@ export const CommonResources = {
         close: 'Fechar',
         confirm: 'Confirmar',
         viewAll: 'Ver todos',
+        open: 'Abrir',
     },
     validation: {
         required: 'Este campo é obrigatório',
@@ -268,9 +269,19 @@ export const DonateResources = {
         pix: {
             title: 'PIX',
             description: 'Chave PIX CNPJ',
-            key: '09.614.717/0001-06',
+            key: '83.784.264/0001-00',
+            qrCode: '/assets/ebenezer_pix_qr_code.png',
             copyButton: 'Copiar Chave PIX',
             copied: 'Copiado!',
+        },
+        bank: {
+            title: 'Transferência Bancária',
+            bank: 'Banco',
+            bankName: 'Banco 085',
+            agency: 'Agência',
+            agencyNumber: '0101-5',
+            account: 'Conta',
+            accountNumber: '9868135',
         },
         inPerson: {
             title: 'Presencial',
@@ -345,6 +356,7 @@ export const AdminDashboardResources = {
             action: 'Verificar Dados',
         },
     },
+    quickActionsTitle: 'Ações Rápidas',
 };
 
 // Recursos de Gerenciamento de Eventos (Admin)
