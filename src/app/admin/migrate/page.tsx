@@ -71,7 +71,7 @@ export default function MigratePage() {
                         This tool checks if your events and posts are using the new storage-based schema.
                     </p>
                     <p className="text-yellow-800">
-                        Events created before the schema update won't have a <code className="bg-yellow-100 px-1 rounded">content_url</code> field and will need to be recreated.
+                        Events created before the schema update won&apos;t have a <code className="bg-yellow-100 px-1 rounded">content_url</code> field and will need to be recreated.
                     </p>
                 </div>
 
@@ -92,7 +92,7 @@ export default function MigratePage() {
                 <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
                     <h2 className="font-semibold text-blue-900 mb-2">📝 How to Fix</h2>
                     <ol className="text-blue-800 space-y-2 list-decimal list-inside">
-                        <li>Delete the old event (it doesn't have a valid content_url)</li>
+                        <li>Delete the old event (it doesn&apos;t have a valid content_url)</li>
                         <li>Go to Events Management</li>
                         <li>Create a new event with the same information</li>
                         <li>The new event will automatically store markdown in Supabase Storage</li>

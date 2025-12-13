@@ -1,178 +1,228 @@
-'use client';
+"use client"
 
-import { AdminPostsResources } from '@/lib/resources';
-import { fetchMarkdownContent, generateFilename, uploadMarkdownFile } from '@/lib/storage';
-import { createClient } from '@/lib/supabase/client';
-import { Database } from '@/lib/supabase/types';
-import '@uiw/react-markdown-preview/markdown.css';
-import '@uiw/react-md-editor/markdown-editor.css';
-import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import type React from "react"
 
-// Dynamic import for markdown editor
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
-
-type Post = Database['public']['Tables']['posts']['Row'];
-type PostInsert = Database['public']['Tables']['posts']['Insert'];
-
-interface Props {
-    post: Post | null;
-    onSave: () => void;
-    onCancel: () => void;
-}
+import { AdminPostsResources, CommonResources } from "@/lib/resources"
+import { fetchMarkdownContent, generateFilename, uploadImage, uploadMarkdownFile } from "@/lib/storage"
+import { createClient } from "@/lib/supabase/client"
+import type { Database } from "@/lib/supabase/types"
+import { ArrowLeft, ImagePlus } from "lucide-react"
+import { useEffect, useState } from "react"
+import RichTextEditor from "./RichTextEditor"
 
 export default function PostEditor({ post, onSave, onCancel }: Props) {
-    const [name, setName] = useState(post?.name || '');
-    const [content, setContent] = useState('');
-    const [authorName, setAuthorName] = useState(post?.author_name || '');
-    const [saving, setSaving] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const supabase = createClient();
+  const [name, setName] = useState(post?.name || "")
+  const [content, setContent] = useState("")
+  const [authorName, setAuthorName] = useState(post?.author_name || "")
+  const [bannerUrl, setBannerUrl] = useState(post?.banner_url || "")
+  const [uploadingBanner, setUploadingBanner] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const supabase = createClient()
 
-    // Load existing markdown content if editing
-    useEffect(() => {
-        if (post?.content_url) {
-            setLoading(true);
-            fetchMarkdownContent(post.content_url).then(({ content: markdownContent, error }) => {
-                if (!error && markdownContent) {
-                    setContent(markdownContent);
-                }
-                setLoading(false);
-            });
+  useEffect(() => {
+    if (post?.content_url) {
+      setLoading(true)
+      fetchMarkdownContent(post.content_url).then(({ content: markdownContent, error }) => {
+        if (!error && markdownContent) {
+          setContent(markdownContent)
         }
-    }, [post]);
+        setLoading(false)
+      })
+    }
+  }, [post])
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSaving(true);
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-        try {
-            // Generate filename and upload markdown content
-            const filename = post?.content_url
-                ? post.content_url.split('/').pop()?.replace('.md', '') || generateFilename(name)
-                : generateFilename(name);
+    setUploadingBanner(true)
+    const filename = `banner-${Date.now()}-${file.name}`
+    const { url, error } = await uploadImage(file, "banners", filename)
 
-            const { url, error: uploadError } = await uploadMarkdownFile(content, 'posts', filename);
+    if (error || !url) {
+      alert(CommonResources.errors.bannerUploadFailed)
+      setUploadingBanner(false)
+      return
+    }
 
-            if (uploadError || !url) {
-                alert('Failed to upload markdown content');
-                setSaving(false);
-                return;
-            }
+    setBannerUrl(url)
+    setUploadingBanner(false)
+  }
 
-            const postData: PostInsert = {
-                name,
-                content_url: url,
-                author_name: authorName,
-            };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
 
-            if (post) {
-                // Update existing post
-                const { error } = await supabase
-                    .from('posts')
-                    .update(postData)
-                    .eq('id', post.id);
+    try {
+      const filename = post?.content_url
+        ? post.content_url.split("/").pop()?.replace(".md", "") || generateFilename(name)
+        : generateFilename(name)
 
-                if (!error) {
-                    onSave();
-                } else {
-                    alert('Failed to save post');
-                }
-            } else {
-                // Create new post
-                const { error } = await supabase
-                    .from('posts')
-                    .insert([postData]);
+      const { url, error: uploadError } = await uploadMarkdownFile(content, "posts", filename)
 
-                if (!error) {
-                    onSave();
-                } else {
-                    alert('Failed to create post');
-                }
-            }
-        } catch (error) {
-            console.error('Error saving post:', error);
-            alert('An error occurred while saving');
+      if (uploadError || !url) {
+        alert(CommonResources.errors.contentUploadFailed)
+        setSaving(false)
+        return
+      }
+
+      const postData = {
+        name,
+        content_url: url,
+        author_name: authorName,
+        banner_url: bannerUrl || null,
+      } as any
+
+      if (post) {
+        const { error } = await (supabase as any)
+          .from("posts")
+          .update(postData)
+          .eq("id", post.id)
+
+        if (!error) {
+          onSave()
+        } else {
+          alert(CommonResources.errors.updateFailed)
         }
+      } else {
+        const { error } = await (supabase as any)
+          .from("posts")
+          .insert([postData])
 
-        setSaving(false);
-    };
+        if (!error) {
+          onSave()
+        } else {
+          alert(CommonResources.errors.createFailed)
+        }
+      }
+    } catch (error) {
+      alert(CommonResources.errors.genericError)
+    }
 
-    return (
-        <div className="p-8 max-w-5xl mx-auto">
-            <h1 className="font-serif text-4xl font-bold text-gray-900 mb-8">
-                {post ? AdminPostsResources.editor.titleEdit : AdminPostsResources.editor.titleNew}
-            </h1>
+    setSaving(false)
+  }
 
-            {loading ? (
-                <div className="text-center py-12">
-                    <p className="text-gray-600">{AdminPostsResources.editor.loading}</p>
-                </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {AdminPostsResources.editor.fields.title.label} *
-                        </label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder={AdminPostsResources.editor.fields.title.placeholder}
-                        />
-                    </div>
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="p-2 hover:bg-accent rounded-lg transition-colors"
+          aria-label={AdminPostsResources.editor.actions.back}
+        >
+          <ArrowLeft className="w-6 h-6 text-foreground" />
+        </button>
+        <h1 className="font-display text-4xl font-bold text-foreground">
+          {post ? AdminPostsResources.editor.titleEdit : AdminPostsResources.editor.titleNew}
+        </h1>
+      </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {AdminPostsResources.editor.fields.author.label} *
-                        </label>
-                        <input
-                            type="text"
-                            value={authorName}
-                            onChange={(e) => setAuthorName(e.target.value)}
-                            required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder={AdminPostsResources.editor.fields.author.placeholder}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {AdminPostsResources.editor.fields.content.label} *
-                        </label>
-                        <div data-color-mode="light">
-                            <MDEditor
-                                value={content}
-                                onChange={(val) => setContent(val || '')}
-                                height={400}
-                            />
-                        </div>
-                        <p className="text-sm text-gray-500 mt-2">
-                            {AdminPostsResources.editor.fields.content.info}
-                        </p>
-                    </div>
-
-                    <div className="flex gap-4">
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50"
-                        >
-                            {saving ? AdminPostsResources.editor.actions.saving : AdminPostsResources.editor.actions.save}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            disabled={saving}
-                            className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:opacity-50"
-                        >
-                            {AdminPostsResources.editor.actions.cancel}
-                        </button>
-                    </div>
-                </form>
-            )}
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">{AdminPostsResources.editor.loading}</p>
         </div>
-    );
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminPostsResources.editor.fields.title.label} *
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
+              placeholder={AdminPostsResources.editor.fields.title.placeholder}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminPostsResources.editor.fields.banner.label}
+            </label>
+            <div className="space-y-3">
+              {bannerUrl && (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-border">
+                  <img
+                    src={bannerUrl || "/placeholder.svg"}
+                    alt={AdminPostsResources.editor.fields.banner.preview}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <label className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-xl hover:border-primary hover:bg-accent/50 transition-all cursor-pointer">
+                <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {uploadingBanner
+                    ? AdminPostsResources.editor.fields.banner.uploading
+                    : bannerUrl
+                      ? AdminPostsResources.editor.fields.banner.change
+                      : AdminPostsResources.editor.fields.banner.button}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerUpload}
+                  disabled={uploadingBanner}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminPostsResources.editor.fields.author.label} *
+            </label>
+            <input
+              type="text"
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background transition-all"
+              placeholder={AdminPostsResources.editor.fields.author.placeholder}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              {AdminPostsResources.editor.fields.content.label} *
+            </label>
+            <RichTextEditor value={content} onChange={setContent} type="posts" />
+            <p className="text-sm text-muted-foreground mt-2">{AdminPostsResources.editor.fields.content.info}</p>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={saving}
+              className="flex-1 bg-secondary text-secondary-foreground py-3 rounded-xl hover:bg-secondary/80 transition-all font-medium disabled:opacity-50"
+            >
+              {AdminPostsResources.editor.actions.cancel}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:bg-primary/90 transition-all font-medium disabled:opacity-50 shadow-sm"
+            >
+              {saving ? AdminPostsResources.editor.actions.saving : AdminPostsResources.editor.actions.save}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
+
+type Post = Database["public"]["Tables"]["posts"]["Row"]
+type PostInsert = Database["public"]["Tables"]["posts"]["Insert"]
+
+interface Props {
+  post: Post | null
+  onSave: () => void
+  onCancel: () => void
 }

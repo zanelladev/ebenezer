@@ -1,76 +1,83 @@
-import { fetchMarkdownContent } from '@/lib/storage';
-import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
+import { fetchMarkdownContent } from "@/lib/storage"
+import { createClient } from "@/lib/supabase/server"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import ReactMarkdown from "react-markdown"
 
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const supabase = await createClient();
+  const { id } = await params
+  const supabase = await createClient()
 
-    const { data: post } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('id', id)
-        .single();
+  const { data: post } = await supabase.from("posts").select("*").eq("id", id).single()
 
-    if (!post) {
-        notFound();
-    }
+  if (!post) {
+    notFound()
+  }
 
-    // Fetch markdown content from storage
-    const { content, error } = await fetchMarkdownContent(post.content_url);
+  const { content, error } = await fetchMarkdownContent(post.content_url)
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('pt-BR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("pt-BR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
 
-    return (
-        <div className="pt-20 min-h-screen bg-white">
-            <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-                {/* Back button */}
-                <div className="mb-6 sm:mb-8">
-                    <Link
-                        href="/blog"
-                        className="inline-flex items-center gap-2 text-[#009CA3] hover:text-[#047A81] font-medium text-sm sm:text-base transition-colors"
-                    >
-                        <span className="text-xs sm:text-sm">←</span> Voltar para o blog
-                    </Link>
-                </div>
-
-                {/* Header */}
-                <div className="mb-8 sm:mb-12 flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
-                        <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
-                            ARTIGO
-                        </p>
-                        <h1 className="font-montserrat text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#002F34]">
-                            {post.name}
-                        </h1>
-                    </div>
-                    <div className="text-[#002F34]/80 text-sm sm:text-base flex flex-wrap items-center gap-2">
-                        <span>{formatDate(post.created_at)}</span>
-                        <span className="mx-1">•</span>
-                        <span>Por {post.author_name}</span>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="bg-[#EFFEFD] rounded-2xl p-6 sm:p-8 lg:p-12">
-                    {error ? (
-                        <p className="text-red-600 text-sm sm:text-base">Falha ao carregar conteúdo da publicação</p>
-                    ) : (
-                        <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none prose-headings:font-montserrat prose-headings:text-[#002F34] prose-p:text-[#002F34]/80 prose-a:text-[#009CA3] prose-strong:text-[#002F34]">
-                            <ReactMarkdown>{content || ''}</ReactMarkdown>
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="pt-24 min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+        {/* Back button */}
+        <div className="mb-8">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-display font-medium transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Voltar para o blog
+          </Link>
         </div>
-    );
+
+        {/* Header */}
+        <div className="mb-12 flex flex-col gap-8">
+          {post.banner_url && (
+            <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-3xl overflow-hidden">
+              <img
+                src={post.banner_url}
+                alt={post.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-12 bg-primary rounded-full"></div>
+              <p className="font-display text-sm font-semibold text-primary uppercase tracking-wider">Artigo</p>
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              {post.name}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4 text-muted-foreground text-base">
+            <span>{formatDate(post.created_at)}</span>
+            <span>•</span>
+            <span>Por {post.author_name}</span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="bg-card border border-border rounded-3xl p-8 lg:p-12 shadow-lg">
+          {error ? (
+            <p className="text-destructive">Falha ao carregar conteúdo da publicação</p>
+          ) : (
+            <div className="prose prose-lg max-w-none">
+              <ReactMarkdown>{content || ""}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }

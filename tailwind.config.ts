@@ -1,56 +1,68 @@
-import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss"
 
 const config: Config = {
-    content: [
-        "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-        "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-        "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    ],
-    theme: {
-        extend: {
-            colors: {
-                primary: {
-                    50: '#e0f7fa',
-                    100: '#b2ebf2',
-                    200: '#80deea',
-                    300: '#4dd0e1',
-                    400: '#26c6da',
-                    500: '#00bcd4',
-                    600: '#00acc1',
-                    700: '#0097a7',
-                    800: '#00838f',
-                    900: '#006064',
-                },
-                warm: {
-                    50: '#fdfcfb',
-                    100: '#faf8f5',
-                    200: '#f5f0e8',
-                    300: '#ebe3d5',
-                    400: '#dfd4c0',
-                    500: '#d4c5ab',
-                    600: '#c8b596',
-                    700: '#b39a77',
-                    800: '#9e7f58',
-                    900: '#7d654b',
-                },
-                accent: {
-                    teal: '#00bcd4',
-                    green: '#00a896',
-                    blue: '#0097a7',
-                },
-            },
-            backgroundImage: {
-                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-            },
-            fontFamily: {
-                sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-                serif: ['var(--font-crimson)', 'Georgia', 'serif'],
-                montserrat: ['var(--font-montserrat)', 'sans-serif'],
-                lato: ['var(--font-lato)', 'sans-serif'],
-            },
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-objektiv)", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      animation: {
+        "fade-in": "fade-in 0.6s ease-out",
+        "fade-in-up": "fade-in-up 0.7s ease-out",
+        "scale-in": "scale-in 0.5s ease-out",
+        "slide-in-left": "slide-in-left 0.7s ease-out",
+        "slide-in-right": "slide-in-right 0.7s ease-out",
+      },
     },
-    plugins: [],
-};
+  },
+  plugins: [],
+}
 
-export default config;
+export default config

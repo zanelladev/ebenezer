@@ -1,103 +1,110 @@
-import { fetchMarkdownContent } from '@/lib/storage';
-import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { LiaCalendarAltSolid, LiaMapMarkerSolid } from 'react-icons/lia';
-import ReactMarkdown from 'react-markdown';
+import { fetchMarkdownContent } from "@/lib/storage"
+import { createClient } from "@/lib/supabase/server"
+import { ArrowLeft, Calendar, MapPin } from "lucide-react"
+import Link from "next/link"
+import { notFound } from "next/navigation"
+import ReactMarkdown from "react-markdown"
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const supabase = await createClient();
+  const { id } = await params
+  const supabase = await createClient()
 
-    const { data: event } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .single();
+  const { data: event } = await supabase.from("events").select("*").eq("id", id).single()
 
-    if (!event) {
-        notFound();
-    }
+  if (!event) {
+    notFound()
+  }
 
-    // Fetch markdown content from storage
-    const { content, error } = await fetchMarkdownContent(event.content_url);
+  const { content, error } = await fetchMarkdownContent(event.content_url)
 
-    // Log for debugging
-    console.log('Event content_url:', event.content_url);
-    console.log('Fetch error:', error);
-    console.log('Content length:', content?.length);
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('pt-BR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
-    return (
-        <div className="pt-20 min-h-screen bg-white">
-            <div className="max-w-[1244px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-                {/* Back button */}
-                <div className="mb-6 sm:mb-8">
-                    <Link
-                        href="/events"
-                        className="inline-flex items-center gap-2 text-[#009CA3] hover:text-[#047A81] font-medium text-sm sm:text-base transition-colors"
-                    >
-                        <span className="text-xs sm:text-sm">←</span> Voltar para eventos
-                    </Link>
-                </div>
-
-                {/* Header */}
-                <div className="mb-8 sm:mb-12 flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
-                        <p className="font-lato text-base font-semibold text-[#047A81] uppercase tracking-wide">
-                            EVENTO
-                        </p>
-                        <h1 className="font-montserrat text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#002F34]">
-                            {event.name}
-                        </h1>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 text-[#002F34]/80 text-sm sm:text-base">
-                        <div className="flex items-center gap-2">
-                            <LiaCalendarAltSolid className="w-5 h-5 flex-shrink-0 text-[#009CA3]" />
-                            <span>{formatDate(event.date)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <LiaMapMarkerSolid className="w-5 h-5 flex-shrink-0 text-[#009CA3]" />
-                            <span>{event.location}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="bg-[#EFFEFD] rounded-2xl p-6 sm:p-8 lg:p-12">
-                    {error ? (
-                        <div>
-                            <p className="text-red-600 mb-4 text-sm sm:text-base">Falha ao carregar conteúdo do evento</p>
-                            <details className="text-xs sm:text-sm text-[#002F34]/60">
-                                <summary className="cursor-pointer font-medium">Detalhes do erro</summary>
-                                <pre className="mt-2 p-3 sm:p-4 bg-white rounded overflow-auto text-xs">
-                                    {JSON.stringify({
-                                        error: error.message,
-                                        content_url: event.content_url
-                                    }, null, 2)}
-                                </pre>
-                            </details>
-                        </div>
-                    ) : content ? (
-                        <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none prose-headings:font-montserrat prose-headings:text-[#002F34] prose-p:text-[#002F34]/80 prose-a:text-[#009CA3] prose-strong:text-[#002F34]">
-                            <ReactMarkdown>{content}</ReactMarkdown>
-                        </div>
-                    ) : (
-                        <p className="text-[#002F34]/80 text-sm sm:text-base">Conteúdo não disponível</p>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="pt-24 min-h-screen bg-background">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+        {/* Back button */}
+        <div className="mb-8">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-display font-medium transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Voltar para eventos
+          </Link>
         </div>
-    );
+
+        {/* Header */}
+        <div className="mb-12 flex flex-col gap-8">
+          {event.banner_url && (
+            <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-3xl overflow-hidden">
+              <img
+                src={event.banner_url}
+                alt={event.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-12 bg-primary rounded-full"></div>
+              <p className="font-display text-sm font-semibold text-primary uppercase tracking-wider">Evento</p>
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              {event.name}
+            </h1>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-6 text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="text-base">{formatDate(event.date)}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-primary" />
+              <span className="text-base">{event.location}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="bg-card border border-border rounded-3xl p-8 lg:p-12 shadow-lg">
+          {error ? (
+            <div className="space-y-4">
+              <p className="text-destructive text-base">Falha ao carregar conteúdo do evento</p>
+              <details className="text-sm text-muted-foreground">
+                <summary className="cursor-pointer font-medium hover:text-foreground transition-colors">
+                  Detalhes do erro
+                </summary>
+                <pre className="mt-4 p-4 bg-muted rounded-xl overflow-auto text-xs">
+                  {JSON.stringify(
+                    {
+                      error: error.message,
+                      content_url: event.content_url,
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </details>
+            </div>
+          ) : content ? (
+            <div className="prose prose-lg max-w-none">
+              <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Conteúdo não disponível</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }

@@ -1,44 +1,43 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
-import type { Metadata } from "next";
-import { Crimson_Text, Inter, Lato, Montserrat } from "next/font/google";
-import "./globals.css";
+import ConditionalLayout from "@/components/ConditionalLayout"
+import { SEOResources } from "@/lib/resources"
+import type { Metadata } from "next"
+import { Inter, Montserrat } from "next/font/google"
+import type React from "react"
+import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const crimson = Crimson_Text({
-    weight: ['400', '600', '700'],
-    subsets: ["latin"],
-    variable: "--font-crimson"
-});
-const montserrat = Montserrat({
-    subsets: ["latin"],
-    variable: "--font-montserrat"
-});
-const lato = Lato({
-    weight: ['400', '700'],
-    subsets: ["latin"],
-    variable: "--font-lato"
-});
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const objektiv = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-objektiv",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+})
 
 export const metadata: Metadata = {
-    title: "Ebenezer Church - Faith, Community, Hope",
-    description: "Welcome to Ebenezer Church - A community of faith, love, and hope",
-};
+  title: SEOResources.defaultTitle,
+  description: SEOResources.defaultDescription,
+  icons: {
+    icon: '/assets/favicon.png',
+    shortcut: '/assets/favicon.png',
+    apple: '/assets/favicon.png',
+  },
+}
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-    return (
-        <html lang="en">
-            <body className={`${inter.variable} ${crimson.variable} ${montserrat.variable} ${lato.variable} font-sans antialiased`}>
-                <Navbar />
-                <main className="min-h-screen">
-                    {children}
-                </main>
-                <Footer />
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en">
+      <body className={`${inter.variable} ${objektiv.variable} font-sans antialiased`}>
+        <ConditionalLayout>{children}</ConditionalLayout>
+      </body>
+    </html>
+  )
 }
