@@ -7,11 +7,15 @@ import { createClient } from "@/lib/supabase/server"
 export default async function Home() {
   const supabase = await createClient()
 
+  // Define início do dia para incluir eventos de hoje
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+
   // Fetch upcoming events (next 3, 1 for hero + 2 for events section)
   const { data: events } = await supabase
     .from("events")
     .select("*")
-    .gte("date", new Date().toISOString())
+    .gte("date", startOfToday.toISOString())
     .order("date", { ascending: true })
     .limit(3)
 
@@ -38,15 +42,15 @@ export default async function Home() {
 
   // Prepare events for events section (skip the first one used in hero)
   const sectionEvents =
-    events && events.length > 1
-      ? events.slice(1).map((event) => ({
-        id: event.id,
-        title: event.name,
-        date: event.date,
-        time: formatTime(event.date),
-        location: event.location,
-        image_url: event.banner_url,
-      }))
+    events && events.length > 0
+      ? (events.length > 1 ? events.slice(1) : events).map((event) => ({
+          id: event.id,
+          title: event.name,
+          date: event.date,
+          time: formatTime(event.date),
+          location: event.location,
+          image_url: event.banner_url,
+        }))
       : []
 
   // Prepare posts for blog section
